@@ -1,0 +1,33 @@
+# Algorithm index — Vecto.Core pipeline
+
+Orchestrator: `Tracer.Trace` (Vecto.Core/Tracer.cs). Stages run in order; every stage is
+deterministic for a given input + options + seed. All tuning constants are resolved in one
+place: `Tracer.Resolve` → `EffectiveParams` (dumped by `vecto trace --stats`).
+
+| # | Stage | Algorithm | Key params | Anchor (file · symbol) |
+|---|-------|-----------|------------|------------------------|
+| 1 | Style resolve | unique-color census → Crisp/Blended heuristic | ≤64 unique → Crisp | Tracer.cs · `Tracer.Resolve` |
+| 2 | Prefilter (Photo only) | 3×3 per-channel median | — | Preprocess.cs · `Preprocess.Median3x3` |
+| 3 | Palette | exact unique colors, or weighted k-means++ in Oklab over a color histogram; Auto mode merges clusters agglomeratively | `KMeansK` (≤64), `MergeThreshold` 0.055 (0.03 photo), edge-excluded sampling (Δchannel > 24) | PaletteBuilder.cs · `PaletteBuilder.Build` |
+| 4 | Labeling | nearest palette color in Oklab; alpha < 128 → transparent (-1) | `Segmenter.OpaqueThreshold` | Segmentation.cs · `Segmenter.Label` |
+| 5 | Absorption | regions < MinRegionArea relabeled to longest-border neighbor (iterated ≤10 passes); eats AA fringes and dust | `MinRegionArea` per Detail/Style (2–24 px) | Segmentation.cs · `Segmenter.AbsorbSmallRegions` |
+| 6 | Components | 4-connected flood fill (4-conn is required for a planar crack graph) | — | Segmentation.cs · `Segmenter.ConnectedComponents` |
+| 7 | Boundary graph | crack-following on the pixel-corner lattice; maximal chains between junctions traced once, shared by both regions; left-turn preference pinches checkerboard points instead of crossing | `TurnOrder` | BoundaryGraph.cs · `BoundaryTracer.Run` / `.Walk` / `.Assemble` |
+| 8 | Corners | turn angle over k-vertex support on the raw staircase, greedy non-max suppression | k=3, threshold 68° (must exceed 63.4° — see comment at `Tracer.Resolve`) | ChainGeometry.cs · `ChainGeometry.DetectCorners` |
+| 9 | Smoothing | clamped Laplacian (Jacobi), corners + junctions pinned to lattice | 8 iters, λ 0.55, clamp 0.6 px | ChainGeometry.cs · `ChainGeometry.SmoothInPlace` |
+| 10 | Curve fitting | Schneider least-squares cubics (Graphics Gems 1990): chord-length parameterization, Newton reparameterization, recursive split; closed no-corner chains get wrap-around tangents (C1 seam) | `FitToleranceSq` 0.16/0.55/2.0 px² by Detail | BezierFitter.cs · `BezierFitter.FitChain` |
+| 10b | Polygon mode | Douglas–Peucker per chain (debug/tests; ε=0 → exact lattice) | `PolygonEpsilon` | ChainGeometry.cs · `ChainGeometry.SimplifyDp` |
+| 11 | Assembly | region loops concatenate shared chain curves (reversed for the right-hand region — identical geometry both sides) | — | Tracer.cs · `Tracer.BuildLoop` |
+| 12 | Emit | VM-style SVG: one path per region, holes as subpaths, 2-decimal invariant coords, near-straight cubics → `L` | `CubicBezier.IsLine` tol 0.02 | SvgWriter.cs · `SvgWriter.Write` |
+
+## Color space
+sRGB → Oklab (Ottosson), LUT-accelerated: OklabColor.cs · `Oklab.FromRgb`. Distances in
+Oklab; display colors stay sRGB — palette entries average only flat (non-edge) pixels so AA
+fringes can't tint fills (Tracer.cs · `Tracer.CompactPalette`).
+
+## Invariants the tests enforce (Vecto.Tests/TracerTests.cs)
+- Planar partition: Σ region areas == opaque pixel count (exact in polygon mode,
+  ≤0.5% in curve mode; boundary shifts cancel between neighbors).
+- Corners of axis-aligned rectangles stay exact lattice points in both modes.
+- A circle r=90 fits in ≤16 cubics with ≤1.6 px radial error.
+- Same input + seed → byte-identical SVG; output is culture-invariant (de-DE guard).
