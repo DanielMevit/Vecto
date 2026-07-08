@@ -3,43 +3,48 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Vecto — pixels in, curves out"
         Height="780" Width="1280"
+        Background="{StaticResource VBg}"
+        Foreground="{StaticResource VFg}"
+        FontFamily="Inter, Segoe UI Variable, Segoe UI"
+        FontSize="12"
         AllowDrop="True" Drop="OnDrop" DragOver="OnDragOver" KeyDown="OnKeyDown">
     <DockPanel>
-        <Border DockPanel.Dock="Top" BorderBrush="#DDDDDD" BorderThickness="0,0,0,1" Padding="8,6">
+        <Border DockPanel.Dock="Top" Background="{StaticResource VSurface}"
+                BorderBrush="{StaticResource VBorderSoft}" BorderThickness="0,0,0,1" Padding="10,8">
             <DockPanel LastChildFill="False">
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                    <Button Content="Open…" Click="OnOpen" Padding="10,3" Margin="0,0,6,0"/>
-                    <Button Content="Paste" Click="OnPaste" Padding="10,3" Margin="0,0,14,0"/>
-                    <Button Content="Export SVG…" Click="OnExport" IsEnabled="{Binding HasResult}" Padding="10,3" Margin="0,0,6,0"/>
-                    <Button Content="Copy SVG" Click="OnCopySvg" IsEnabled="{Binding HasResult}" Padding="10,3"/>
+                    <Button Content="Open…" Click="OnOpen" Margin="0,0,6,0"/>
+                    <Button Content="Paste" Click="OnPaste" Margin="0,0,16,0"/>
+                    <Button Content="Export SVG…" Click="OnExport" IsEnabled="{Binding HasResult}"
+                            Style="{StaticResource AccentButton}" Margin="0,0,6,0"/>
+                    <Button Content="Copy SVG" Click="OnCopySvg" IsEnabled="{Binding HasResult}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                    <TextBlock Text="Right view" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="#666666"/>
-                    <ComboBox SelectedIndex="{Binding RightMode}" Width="120" Margin="0,0,14,0" VerticalAlignment="Center">
+                    <ComboBox SelectedIndex="{Binding RightMode}" Width="128" Margin="0,0,16,0" VerticalAlignment="Center">
                         <ComboBoxItem Content="Vector"/>
                         <ComboBoxItem Content="Segmentation"/>
                     </ComboBox>
-                    <Button Content="−" Click="OnZoomOut" Width="26" Padding="0,3"/>
-                    <TextBlock Text="{Binding ZoomText}" VerticalAlignment="Center" MinWidth="46" TextAlignment="Center"/>
-                    <Button Content="+" Click="OnZoomIn" Width="26" Padding="0,3" Margin="0,0,6,0"/>
-                    <Button Content="Fit" Click="OnZoomFit" Width="36" Padding="0,3" Margin="0,0,4,0"/>
-                    <Button Content="1:1" Click="OnZoomActual" Width="36" Padding="0,3"/>
+                    <Button Content="−" Click="OnZoomOut" Width="28" Padding="0,5"/>
+                    <TextBlock Text="{Binding ZoomText}" VerticalAlignment="Center" MinWidth="48"
+                               TextAlignment="Center" Foreground="{StaticResource VFgMuted}"/>
+                    <Button Content="+" Click="OnZoomIn" Width="28" Padding="0,5" Margin="0,0,8,0"/>
+                    <Button Content="Fit" Click="OnZoomFit" Padding="9,5" Margin="0,0,4,0"/>
+                    <Button Content="1:1" Click="OnZoomActual" Padding="9,5"/>
                 </StackPanel>
             </DockPanel>
         </Border>
-        <StatusBar DockPanel.Dock="Bottom">
-            <StatusBarItem>
-                <TextBlock Text="{Binding Status}"/>
-            </StatusBarItem>
-        </StatusBar>
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource VSurface}"
+                BorderBrush="{StaticResource VBorderSoft}" BorderThickness="0,1,0,0" Padding="10,5">
+            <TextBlock Text="{Binding Status}" Foreground="{StaticResource VFgMuted}" FontSize="11"/>
+        </Border>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="4"/>
+                <ColumnDefinition Width="3"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer x:Name="LeftScroll" Grid.Column="0" Background="#F4F4F5"
+            <ScrollViewer x:Name="LeftScroll" Grid.Column="0" Background="{StaticResource VCanvas}"
                           HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                           ScrollChanged="OnLeftScrollChanged" PreviewMouseWheel="OnPreviewWheel">
                 <!-- explicit pixel size: PNG DPI metadata must not shrink the bitmap,
@@ -53,8 +58,8 @@
                     </Image.LayoutTransform>
                 </Image>
             </ScrollViewer>
-            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="#DDDDDD"/>
-            <ScrollViewer x:Name="RightScroll" Grid.Column="2" Background="#F4F4F5"
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch"/>
+            <ScrollViewer x:Name="RightScroll" Grid.Column="2" Background="{StaticResource VCanvas}"
                           HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                           ScrollChanged="OnRightScrollChanged" PreviewMouseWheel="OnPreviewWheel">
                 <Image Source="{Binding RightSource}" Stretch="None"
@@ -65,15 +70,17 @@
                     </Image.LayoutTransform>
                 </Image>
             </ScrollViewer>
-            <Border Grid.Column="3" Width="230" BorderBrush="#DDDDDD" BorderThickness="1,0,0,0" Padding="10">
+            <Border Grid.Column="3" Width="232" Background="{StaticResource VSurface}"
+                    BorderBrush="{StaticResource VBorderSoft}" BorderThickness="1,0,0,0" Padding="12,10">
                 <StackPanel>
-                    <TextBlock Text="Palette" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                    <CheckBox Content="Automatic colors" IsChecked="{Binding AutoColors}" Margin="0,0,0,4"/>
-                    <DockPanel IsEnabled="{Binding ManualColors}" Margin="0,0,0,8">
-                        <TextBlock DockPanel.Dock="Right" Text="{Binding ColorCountText}" MinWidth="24" TextAlignment="Right"/>
+                    <TextBlock Text="Palette" Style="{StaticResource SectionLabel}"/>
+                    <CheckBox Content="Automatic colors" IsChecked="{Binding AutoColors}" Margin="0,0,0,7"/>
+                    <DockPanel IsEnabled="{Binding ManualColors}" Margin="0,0,0,9">
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding ColorCountText}" MinWidth="24"
+                                   TextAlignment="Right" Foreground="{StaticResource VFgMuted}" VerticalAlignment="Center"/>
                         <Slider Minimum="2" Maximum="32" Value="{Binding ColorCount}" IsSnapToTickEnabled="True" TickFrequency="1"/>
                     </DockPanel>
-                    <ItemsControl ItemsSource="{Binding Swatches}" Margin="0,0,0,10">
+                    <ItemsControl ItemsSource="{Binding Swatches}" Margin="0,0,0,12">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel/>
@@ -81,25 +88,27 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Width="18" Height="18" Margin="0,0,4,4" BorderBrush="#999999" BorderThickness="1"
+                                <Border Width="20" Height="20" Margin="0,0,5,5" CornerRadius="5"
+                                        BorderBrush="{StaticResource VBorder}" BorderThickness="1"
                                         Background="{Binding Brush}" ToolTip="{Binding Tooltip}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <TextBlock Text="Style" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                    <ComboBox SelectedIndex="{Binding StyleIndex}" Margin="0,0,0,8">
+                    <TextBlock Text="Style" Style="{StaticResource SectionLabel}"/>
+                    <ComboBox SelectedIndex="{Binding StyleIndex}" Margin="0,0,0,10">
                         <ComboBoxItem Content="Auto"/>
                         <ComboBoxItem Content="Crisp (no blending)"/>
                         <ComboBoxItem Content="Blended (anti-aliased)"/>
                         <ComboBoxItem Content="Photo"/>
                     </ComboBox>
-                    <TextBlock Text="Detail" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                    <ComboBox SelectedIndex="{Binding DetailIndex}" Margin="0,0,0,12">
+                    <TextBlock Text="Detail" Style="{StaticResource SectionLabel}"/>
+                    <ComboBox SelectedIndex="{Binding DetailIndex}" Margin="0,0,0,14">
                         <ComboBoxItem Content="Low"/>
                         <ComboBoxItem Content="Medium"/>
                         <ComboBoxItem Content="High"/>
                     </ComboBox>
-                    <TextBlock Text="{Binding StatsText}" Foreground="#666666" FontFamily="Consolas" FontSize="11" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding StatsText}" Foreground="{StaticResource VFgFaint}"
+                               FontFamily="Consolas" FontSize="10.5" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
         </Grid>

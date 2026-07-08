@@ -20,6 +20,18 @@ public partial class MainWindow : Window
             Dispatcher.BeginInvoke(FitZoom, System.Windows.Threading.DispatcherPriority.Loaded);
     }
 
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        // dark title bar (DWMWA_USE_IMMERSIVE_DARK_MODE) so the chrome matches the theme
+        var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        int enabled = 1;
+        _ = DwmSetWindowAttribute(handle, 20, ref enabled, sizeof(int));
+    }
+
+    [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
+    static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
+
     public void TryLoad(string path)
     {
         try

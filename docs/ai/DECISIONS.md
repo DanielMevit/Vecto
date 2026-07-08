@@ -40,3 +40,10 @@ CLI goes through InvariantCulture; a de-DE test guards it (comma decimals would 
 corrupt SVG path data on European locales).
 
 **Naming: Vecto.** Fits the Floato/Eqho family. Tagline: "pixels in, curves out."
+
+**UI theme provenance (matters for open-sourcing).** The dark theme's *values* (near-black
+surfaces #0A0A0A/#171717, hairline white-alpha borders, #0C8CE9 accent, Inter, 4–8 px radii)
+follow the design language of Pixel Point's Toolcraft, which is under a proprietary
+"Designer License". **No Toolcraft source code was copied** — Themes/Theme.xaml is original
+WPF written from scratch; color/spacing values are unprotectable facts. Do not paste
+Toolcraft CSS/JS/components into this repo; that would attach their license.

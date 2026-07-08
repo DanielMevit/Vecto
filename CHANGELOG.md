@@ -1,5 +1,14 @@
 # Changelog — Vecto
 
+## v0.4.1 — 2026-07-08
+
+### Dark UI theme (Toolcraft-inspired, original XAML)
+- New Themes/Theme.xaml: near-black surfaces, hairline low-alpha borders, #0C8CE9 accent,
+  Inter typography, custom templates for Button/ComboBox/CheckBox/Slider/ScrollBar/ToolTip,
+  thin pill scrollbars, dark title bar via DWM. Layout unchanged (compact).
+- Provenance: design-token values follow Pixel Point's Toolcraft (proprietary license);
+  zero Toolcraft code copied — see DECISIONS.md. Repo stays clean for open-sourcing.
+
 ## v0.4.0 — 2026-07-08
 
 ### Perfect circles + straight-run extraction
