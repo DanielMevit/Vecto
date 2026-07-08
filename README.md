@@ -5,7 +5,7 @@
 <h1 align="center">Vecto</h1>
 
 <p align="center">
-  <b>Free, open-source image-to-vector converter for Windows.</b><br/>
+  <b>Free, open-source image-to-vector converter.</b><br/>
   Trace PNG and JPG images — logos, icons, illustrations, pixel art, scans — into clean, editable <b>SVG</b><br/>
   with mathematically exact circles, true straight lines, and zero gaps between shapes.
 </p>
