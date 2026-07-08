@@ -52,6 +52,8 @@ Grab the latest from the **[Releases page](https://github.com/DanielMevit/Vecto/
 - **`Vecto-x.y.z-win-x64.zip`** — the app **plus the `vecto` command-line tool** (unzip
   anywhere; add the folder to `PATH` to use `vecto` from any terminal).
 
+**CLI for Linux and macOS** (`vecto-x.y.z-linux-x64` / `-osx-x64` / `-osx-arm64`) is on the same page — full tracing, batch and benchmarking from any terminal (`chmod +x` after download).
+
 SHA-256 checksums are listed in each release. Windows SmartScreen may warn on first run
 (new, unsigned executable) — choose *More info → Run anyway*.
 
