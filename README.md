@@ -2,7 +2,7 @@
   <img src="assets/Vecto_Logo_1024x1024.png" width="120" alt="Vecto logo — a V made of pixels turning into a vector path"/>
 </p>
 
-<h1 align="center">Vecto — pixels in, curves out</h1>
+<h1 align="center">Vecto</h1>
 
 <p align="center">
   <b>Free, open-source image-to-vector converter for Windows.</b><br/>
@@ -41,14 +41,27 @@ gaps and overlaps that plague most PNG-to-SVG converters.
   tests (exact area preservation, corner exactness, circle accuracy, culture safety).
 - **Headless CLI + benchmark harness** for batch tracing and objective quality measurement.
 
-## Quick start
+## Install
+
+**Requirements:** Windows 10/11 and the free
+[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (needed to build from
+source — no other setup). Prebuilt downloads that skip this step will ship on the
+Releases page.
 
 ```bash
 git clone https://github.com/DanielMevit/Vecto.git
 cd Vecto
-dotnet build -c Release          # Windows .NET 8 SDK
-./Vecto.App/bin/Release/net8.0-windows/Vecto.exe
+dotnet build -c Release
 ```
+
+After the build:
+
+- **Desktop app:** `Vecto.App\bin\Release\net8.0-windows\Vecto.exe` — run it directly or
+  pin it to the taskbar.
+- **CLI:** `Vecto.Cli\bin\Release\net8.0\vecto.exe` — add that folder to your `PATH` to
+  call `vecto` from anywhere.
+
+## Using Vecto
 
 **App:** drop / paste (Ctrl+V) / open any PNG, JPG, BMP or GIF → automatic trace →
 export or copy SVG. Transparency is preserved. Tip: feed the highest-resolution image you

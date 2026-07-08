@@ -39,7 +39,8 @@ ImageSharp is pinned to 3.1.x — the 4.x line requires a paid license key at bu
 CLI goes through InvariantCulture; a de-DE test guards it (comma decimals would silently
 corrupt SVG path data on European locales).
 
-**Naming: Vecto.** Fits the Floato/Eqho family. Tagline: "pixels in, curves out."
+**Naming: Vecto.** Fits the Floato/Eqho family. No tagline — the name plus a factual
+descriptor ("image-to-vector converter") is the brand voice; cute slogans were vetoed.
 
 **UI theme provenance (matters for open-sourcing).** The dark theme's *values* (near-black
 surfaces #0A0A0A/#171717, hairline white-alpha borders, #0C8CE9 accent, Inter, 4–8 px radii)

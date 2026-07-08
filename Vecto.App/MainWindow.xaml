@@ -1,7 +1,7 @@
 <Window x:Class="Vecto.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Vecto — pixels in, curves out"
+        Title="Vecto"
         Height="780" Width="1280"
         Background="{StaticResource VBg}"
         Foreground="{StaticResource VFg}"
