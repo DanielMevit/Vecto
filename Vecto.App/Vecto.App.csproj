@@ -10,6 +10,7 @@
     <UseWPF>true</UseWPF>
     <AssemblyName>Vecto</AssemblyName>
     <RootNamespace>Vecto.App</RootNamespace>
+    <ApplicationIcon>..\assets\vecto.ico</ApplicationIcon>
   </PropertyGroup>
 
 </Project>
