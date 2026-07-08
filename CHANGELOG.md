@@ -1,5 +1,22 @@
 # Changelog — Vecto
 
+## v0.2.0 — 2026-07-08
+
+### Ground-truth evaluation harness + sub-pixel quality pass
+- **Rasterizer** (Core): renders any VectorDocument to pixels — nonzero scanline fill,
+  painter's order, supersampled. **SvgReader** (Cli): parses M/L/H/V/C/Z path SVGs back
+  into documents. New CLI commands: `vecto render` (SVG→PNG) and `vecto bench` — the
+  round trip *original vector → raster → trace → re-render → per-pixel Oklab ΔE diff*
+  with heatmap output; VM's own sample SVGs serve as local ground truth.
+- **Sub-pixel edge refinement**: boundary points slide along their normals to the 50%
+  coverage crossing of the two region colors (bilinear-sampled; alpha against transparent
+  sides). Recovers the edge position anti-aliasing encodes instead of snapping to the
+  pixel lattice. Mean ΔE on the 4-logo ground-truth bench: −40…−46% per file.
+- Corner-flank smoothing damping (thin tips no longer fatten into lobes) + tighter fit
+  tolerances + post-refinement jitter pass (error held, ~20% fewer nodes than without).
+- **App fix**: original pane now displays at true pixel size — PNGs with non-96-DPI
+  metadata (like VM's samples) made the left pane shrink, breaking the side-by-side scale.
+
 ## v0.1.0 — 2026-07-08
 
 ### Phase 0 — Bootstrap

@@ -47,6 +47,7 @@ public sealed class EffectiveParams
     public double SmoothClamp;        // px; max drift of a boundary point from the raster crack
     public double CornerThresholdDeg;
     public int CornerSupport;         // vertices on each side used to measure the turn angle
+    public double SubpixelMaxShift;   // px; cap on normal-direction edge refinement
     public double FitToleranceSq;     // px²
     public double PolygonEpsilon;
     public int Seed;

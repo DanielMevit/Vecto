@@ -21,11 +21,13 @@
 - Copy vector to clipboard for design apps (SVG clipboard format works for Figma/Inkscape)
 
 ## Tuning backlog (quality, engine)
-- Sub-pixel edge placement from AA gradients (VM's anti-aliased segmentation is sub-pixel;
-  ours snaps to the crack lattice ±0.6 px clamp)
-- Junction-point relaxation (junctions stay pinned to integer lattice points)
+- ~~Sub-pixel edge placement from AA gradients~~ **done 2026-07-08** (`SubpixelRefine`;
+  mean ΔE −40% across the ground-truth bench)
+- Node economy: still ~1.5–2× Vector Magic's node counts at equal detail — smarter
+  tangent estimation or two-pass fitting could close it
+- Sub-pixel corner/junction relocation (corners and junctions stay pinned to integer
+  lattice points; diff hotspots concentrate there)
 - Gentle-slope staircases: constrained line detection would beat Laplacian+fit on
   near-horizontal edges
-- Sub-pixel corner relocation (corners pin to the nearest lattice point)
 - `MinRegionArea` scaling with image resolution; photo-mode color count heuristics
 - Parallelize labeling/k-means further if large photos feel slow

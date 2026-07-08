@@ -59,12 +59,29 @@ internal static class ChainGeometry
         var cur = (Vec2[])orig.Clone();
         var next = new Vec2[n];
         var pin = new bool[n];
+        var lam = new double[n];
+        Array.Fill(lam, lambda);
         foreach (var i in pinned)
             if (i >= 0 && i < n) pin[i] = true;
         if (!closed)
         {
             pin[0] = true;
             pin[n - 1] = true;
+        }
+        // damp smoothing next to pinned corners: full-strength Laplacian bulges the
+        // flanks of sharp tips (thin features fatten into lobes)
+        for (int i = 0; i < n; i++)
+        {
+            if (!pin[i]) continue;
+            for (int d = 1; d <= 2; d++)
+            {
+                double factor = d == 1 ? 0.25 : 0.55;
+                foreach (var j in new[] { i - d, i + d })
+                {
+                    int idx = closed ? ((j % n) + n) % n : j;
+                    if (idx >= 0 && idx < n) lam[idx] = Math.Min(lam[idx], lambda * factor);
+                }
+            }
         }
         double clampSq = clamp * clamp;
         for (int it = 0; it < iterations; it++)
@@ -79,7 +96,7 @@ internal static class ChainGeometry
                 var prev = cur[i == 0 ? n - 1 : i - 1];
                 var nxt = cur[i == n - 1 ? 0 : i + 1];
                 var target = new Vec2((prev.X + nxt.X) * 0.5, (prev.Y + nxt.Y) * 0.5);
-                var p = cur[i] + (target - cur[i]) * lambda;
+                var p = cur[i] + (target - cur[i]) * lam[i];
                 var drift = p - orig[i];
                 if (drift.LengthSq > clampSq) p = orig[i] + drift.Normalized() * clamp;
                 next[i] = p;
@@ -88,6 +105,99 @@ internal static class ChainGeometry
         }
         for (int i = 0; i < n; i++) pts[i] = cur[i];
         if (closed) pts[n] = pts[0];
+    }
+
+    /// <summary>
+    /// Sub-pixel edge refinement: slides each boundary point along its normal to where the
+    /// source image's coverage crosses 50% between the two region colors. Anti-aliasing
+    /// encodes the true edge position at sub-pixel precision — the crack lattice discards
+    /// it, this recovers it. Corners/junctions stay pinned; per-chain, so planarity holds.
+    /// </summary>
+    public static void SubpixelRefine(List<Vec2> pts, bool closed, IReadOnlyList<int> pinned,
+        RasterImage img, Rgba32? left, Rgba32? right, double maxShift)
+    {
+        if (left == null && right == null) return;
+        int n = closed ? pts.Count - 1 : pts.Count;
+        if (n < 3) return;
+        var pin = new bool[n];
+        foreach (var i in pinned)
+            if (i >= 0 && i < n) pin[i] = true;
+        if (!closed)
+        {
+            pin[0] = true;
+            pin[n - 1] = true;
+        }
+
+        double axisR = 0, axisG = 0, axisB = 0, axisLenSq = 0;
+        if (left is { } l && right is { } r)
+        {
+            axisR = l.R - r.R;
+            axisG = l.G - r.G;
+            axisB = l.B - r.B;
+            axisLenSq = axisR * axisR + axisG * axisG + axisB * axisB;
+            if (axisLenSq < 1) return;   // indistinguishable colors — nothing to measure
+        }
+
+        var result = new Vec2[n];
+        for (int i = 0; i < n; i++)
+        {
+            var p = pts[i];
+            result[i] = p;
+            if (pin[i]) continue;
+            var prev = pts[i == 0 ? (closed ? n - 1 : 0) : i - 1];
+            var nxt = pts[i == n - 1 ? (closed ? 0 : n - 1) : i + 1];
+            var tangent = (nxt - prev).Normalized();
+            if (tangent.LengthSq < 0.5) continue;
+            var normal = new Vec2(tangent.Y, -tangent.X);   // toward the LEFT region (y-down)
+
+            double f0 = CoverLeft(p - normal);
+            double f1 = CoverLeft(p);
+            double f2 = CoverLeft(p + normal);
+            double t;
+            if ((f0 - 0.5) * (f1 - 0.5) <= 0 && Math.Abs(f1 - f0) > 1e-9)
+                t = -1 + (0.5 - f0) / (f1 - f0);
+            else if ((f1 - 0.5) * (f2 - 0.5) <= 0 && Math.Abs(f2 - f1) > 1e-9)
+                t = (0.5 - f1) / (f2 - f1);
+            else
+                continue;
+            if (double.IsNaN(t)) continue;
+            result[i] = p + normal * Math.Clamp(t, -maxShift, maxShift);
+        }
+        for (int i = 0; i < n; i++) pts[i] = result[i];
+        if (closed) pts[n] = pts[0];
+
+        double CoverLeft(Vec2 q)
+        {
+            var (sr, sg, sb, sa) = Sample(img, q.X, q.Y);
+            if (left == null) return 1 - sa;   // left side is transparency
+            if (right == null) return sa;
+            var rr = right.Value;
+            double dot = (sr - rr.R) * axisR + (sg - rr.G) * axisG + (sb - rr.B) * axisB;
+            return Math.Clamp(dot / axisLenSq, 0, 1);
+        }
+    }
+
+    static (double R, double G, double B, double A) Sample(RasterImage img, double x, double y)
+    {
+        double u = x - 0.5, v = y - 0.5;   // pixel centers sit at +0.5 in crack coordinates
+        int x0 = (int)Math.Floor(u), y0 = (int)Math.Floor(v);
+        double fx = u - x0, fy = v - y0;
+        double sr = 0, sg = 0, sb = 0, sa = 0;
+        for (int dy = 0; dy <= 1; dy++)
+        {
+            for (int dx = 0; dx <= 1; dx++)
+            {
+                int xi = Math.Clamp(x0 + dx, 0, img.Width - 1);
+                int yi = Math.Clamp(y0 + dy, 0, img.Height - 1);
+                double w = (dx == 0 ? 1 - fx : fx) * (dy == 0 ? 1 - fy : fy);
+                int pi = (yi * img.Width + xi) * 4;
+                sr += w * img.Pixels[pi];
+                sg += w * img.Pixels[pi + 1];
+                sb += w * img.Pixels[pi + 2];
+                sa += w * img.Pixels[pi + 3];
+            }
+        }
+        return (sr, sg, sb, sa / 255.0);
     }
 
     /// <summary>Douglas–Peucker with distance-to-segment (handles closed chains where first == last).</summary>

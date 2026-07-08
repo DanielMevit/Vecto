@@ -42,7 +42,10 @@
             <ScrollViewer x:Name="LeftScroll" Grid.Column="0" Background="#F4F4F5"
                           HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                           ScrollChanged="OnLeftScrollChanged" PreviewMouseWheel="OnPreviewWheel">
-                <Image Source="{Binding SourceBitmap}" Stretch="None"
+                <!-- explicit pixel size: PNG DPI metadata must not shrink the bitmap,
+                     or the two panes fall out of scale -->
+                <Image Source="{Binding SourceBitmap}" Stretch="Fill"
+                       Width="{Binding SourceBitmap.PixelWidth}" Height="{Binding SourceBitmap.PixelHeight}"
                        HorizontalAlignment="Center" VerticalAlignment="Center"
                        RenderOptions.BitmapScalingMode="NearestNeighbor">
                     <Image.LayoutTransform>

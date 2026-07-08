@@ -87,12 +87,18 @@ public static class Tracer
 
         progress?.Invoke("curves", 0.6);
         sw.Restart();
+        Rgba32? ColorOf(int region) => region < 0 ? null : palette[seg.RegionPalette[region]].Color;
         Parallel.ForEach(graph.Chains, new ParallelOptions { CancellationToken = ct }, chain =>
         {
             if (options.CurveFitting)
             {
                 var corners = ChainGeometry.DetectCorners(chain.Points, chain.Closed, p.CornerThresholdDeg, p.CornerSupport);
                 ChainGeometry.SmoothInPlace(chain.Points, chain.Closed, corners, p.SmoothIterations, p.SmoothLambda, p.SmoothClamp);
+                ChainGeometry.SubpixelRefine(chain.Points, chain.Closed, corners, img,
+                    ColorOf(chain.Left), ColorOf(chain.Right), p.SubpixelMaxShift);
+                // light second pass: per-point refinement estimates jitter; smoothing them
+                // (clamped to the refined positions) costs <0.25px but many fewer nodes
+                ChainGeometry.SmoothInPlace(chain.Points, chain.Closed, corners, 3, 0.5, 0.25);
                 chain.Curve = BezierFitter.FitChain(chain.Points, chain.Closed, corners, p.FitToleranceSq);
             }
             else
@@ -246,7 +252,8 @@ public static class Tracer
             // (3,0) vs (1,2) at k=3 support and would otherwise pin false corners on circles
             CornerThresholdDeg = 68,
             CornerSupport = 3,
-            FitToleranceSq = o.Detail switch { DetailLevel.Low => 2.0, DetailLevel.High => 0.16, _ => 0.55 },
+            SubpixelMaxShift = style == ImageStyle.Crisp ? 0.35 : 0.75,
+            FitToleranceSq = o.Detail switch { DetailLevel.Low => 1.0, DetailLevel.High => 0.09, _ => 0.25 },
             PolygonEpsilon = o.PolygonEpsilon >= 0 ? o.PolygonEpsilon
                 : o.Detail switch { DetailLevel.Low => 1.6, DetailLevel.High => 0.4, _ => 0.8 },
             Seed = o.Seed,

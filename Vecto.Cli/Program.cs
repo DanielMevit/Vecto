@@ -34,6 +34,8 @@ internal static class Program
         {
             "trace" => Trace(args[1..]),
             "samples" => Samples(args[1..]),
+            "render" => Render(args[1..]),
+            "bench" => Bench(args[1..]),
             _ when File.Exists(args[0]) => Trace(args),
             _ => UnknownCommand(args[0]),
         };
@@ -119,6 +121,105 @@ internal static class Program
         }
         if (stats) PrintStats(res);
         if (check && !PlanarityCheck(res)) return 2;
+        return 0;
+    }
+
+    static int Render(string[] args)
+    {
+        string? input = null, output = null;
+        double scale = 1;
+        for (int i = 0; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "-o" or "--out":
+                    output = Next(args, ref i);
+                    break;
+                case "--scale":
+                    scale = double.Parse(Next(args, ref i), CultureInfo.InvariantCulture);
+                    break;
+                default:
+                    if (args[i].StartsWith('-')) throw new ArgumentException("unknown option " + args[i]);
+                    input = args[i];
+                    break;
+            }
+        }
+        if (input == null) throw new ArgumentException("no input SVG given");
+        output ??= Path.ChangeExtension(input, ".png");
+        var doc = SvgReader.ReadFile(input);
+        var img = Rasterizer.Render(doc, scale);
+        ImageIo.SavePng(img, output);
+        Console.WriteLine(FormattableString.Invariant($"{Path.GetFileName(input)} -> {output}  ({img.Width}x{img.Height})"));
+        return 0;
+    }
+
+    /// <summary>
+    /// Ground-truth round trip: original vector → raster (the input a user would have) →
+    /// trace → re-render → perceptual diff against that raster. The diff heatmap and the
+    /// ΔE/node numbers say exactly where the engine falls short of the original vector.
+    /// </summary>
+    static int Bench(string[] args)
+    {
+        var files = new List<string>();
+        string? outDir = null;
+        double scale = 1;
+        var opt = new TraceOptions();
+        for (int i = 0; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "--scale":
+                    scale = double.Parse(Next(args, ref i), CultureInfo.InvariantCulture);
+                    break;
+                case "--out-dir":
+                    outDir = Next(args, ref i);
+                    break;
+                case "--colors":
+                    var v = Next(args, ref i);
+                    if (!v.Equals("auto", StringComparison.OrdinalIgnoreCase))
+                    {
+                        opt.PaletteMode = PaletteMode.FixedCount;
+                        opt.ColorCount = int.Parse(v, CultureInfo.InvariantCulture);
+                    }
+                    break;
+                case "--detail":
+                    opt.Detail = Enum.Parse<DetailLevel>(Next(args, ref i), true);
+                    break;
+                case "--style":
+                    opt.Style = Enum.Parse<ImageStyle>(Next(args, ref i), true);
+                    break;
+                case "--seed":
+                    opt.Seed = int.Parse(Next(args, ref i), CultureInfo.InvariantCulture);
+                    break;
+                default:
+                    if (args[i].StartsWith('-')) throw new ArgumentException("unknown option " + args[i]);
+                    files.Add(args[i]);
+                    break;
+            }
+        }
+        if (files.Count == 0) throw new ArgumentException("no ground-truth SVG files given");
+        if (outDir != null) Directory.CreateDirectory(outDir);
+        Console.WriteLine("name                              size      meanDE  rmsDE   >JND    >0.1    nodes(gt)  regions  ms");
+        foreach (var f in files)
+        {
+            var ground = SvgReader.ReadFile(f);
+            var raster = Rasterizer.Render(ground, scale);
+            var dir = outDir ?? (Path.GetDirectoryName(Path.GetFullPath(f)) ?? ".");
+            var tag = FormattableString.Invariant($"{Path.GetFileNameWithoutExtension(f)}-x{scale:0.##}");
+            var basePath = Path.Combine(dir, tag);
+            ImageIo.SavePng(raster, basePath + ".in.png");
+
+            var res = Tracer.Trace(raster, opt);
+            File.WriteAllText(basePath + ".out.svg", SvgWriter.Write(res.Document));
+            var rendered = Rasterizer.Render(res.Document);
+            ImageIo.SavePng(rendered, basePath + ".out.png");
+
+            var m = Metrics.Compare(raster, rendered);
+            ImageIo.SavePng(m.DiffImage, basePath + ".diff.png");
+            int groundNodes = ground.Regions.Sum(r => r.Loops.Sum(l => l.Count));
+            Console.WriteLine(FormattableString.Invariant(
+                $"{tag,-32}  {raster.Width}x{raster.Height,-5} {m.MeanDe,7:0.0000} {m.RmsDe,7:0.0000} {m.PctOverJnd,6:P1} {m.PctOverBig,6:P2}  {res.Diagnostics.NodeCount}({groundNodes})   {res.Diagnostics.RegionCount,-7}  {res.Diagnostics.TotalMs}"));
+        }
         return 0;
     }
 
@@ -222,6 +323,11 @@ internal static class Program
             usage:
               vecto trace <image> [options]     vectorize an image (also: vecto <image>)
               vecto samples [dir]               write procedural test images
+              vecto render <svg> [-o png] [--scale s]
+                                                rasterize an SVG (M/L/H/V/C/Z paths)
+              vecto bench <svg...> [--scale s] [--out-dir d] [trace options]
+                                                ground-truth round trip: rasterize the
+                                                original vector, trace it, diff the result
 
             options:
               -o, --out <file>      output SVG path (default: input with .svg)
