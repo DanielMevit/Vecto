@@ -242,7 +242,9 @@ public static class Tracer
             SmoothIterations = 8,
             SmoothLambda = 0.55,
             SmoothClamp = 0.6,
-            CornerThresholdDeg = 60,
+            // must exceed 63.4°: a shallow↔steep staircase transition measures as
+            // (3,0) vs (1,2) at k=3 support and would otherwise pin false corners on circles
+            CornerThresholdDeg = 68,
             CornerSupport = 3,
             FitToleranceSq = o.Detail switch { DetailLevel.Low => 2.0, DetailLevel.High => 0.16, _ => 0.55 },
             PolygonEpsilon = o.PolygonEpsilon >= 0 ? o.PolygonEpsilon
