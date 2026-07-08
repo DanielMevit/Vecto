@@ -58,7 +58,37 @@ public partial class MainWindow : Window
             return;
         }
         var img = Clipboard.GetImage();
-        if (img != null) ViewModel.LoadBitmap(BitmapFrame.Create(img));
+        if (img != null) ViewModel.LoadPastedBitmap(BitmapFrame.Create(img));
+    }
+
+    System.Windows.Point _panStart;
+    double _panH, _panV;
+    ScrollViewer? _panning;
+
+    void OnPanStart(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton != MouseButton.Middle) return;
+        _panning = (ScrollViewer)sender;
+        _panStart = e.GetPosition(_panning);
+        _panH = _panning.HorizontalOffset;
+        _panV = _panning.VerticalOffset;
+        _panning.CaptureMouse();
+        e.Handled = true;
+    }
+
+    void OnPanMove(object sender, MouseEventArgs e)
+    {
+        if (_panning == null) return;
+        var p = e.GetPosition(_panning);
+        _panning.ScrollToHorizontalOffset(_panH - (p.X - _panStart.X));
+        _panning.ScrollToVerticalOffset(_panV - (p.Y - _panStart.Y));
+    }
+
+    void OnPanEnd(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton != MouseButton.Middle || _panning == null) return;
+        _panning.ReleaseMouseCapture();
+        _panning = null;
     }
 
     void OnExport(object sender, RoutedEventArgs e)

@@ -140,6 +140,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     public string SuggestedName => Path.GetFileNameWithoutExtension(_sourcePath ?? "vecto") + ".svg";
 
+    public string WindowTitle => _sourcePath == null ? "Vecto" : $"Vecto — {Path.GetFileName(_sourcePath)}";
+
+    public void LoadPastedBitmap(BitmapSource bmp)
+    {
+        _sourcePath = null;
+        LoadBitmap(bmp);
+    }
+
     public void LoadFile(string path)
     {
         var bmp = new BitmapImage();
@@ -157,6 +165,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         if (bmp.CanFreeze) bmp.Freeze();
         SourceBitmap = bmp;
         _raster = ImageInterop.ToRaster(bmp);
+        Raise(nameof(WindowTitle));
         FitRequested?.Invoke();
         Retrace(immediate: true);
     }
