@@ -1,22 +1,110 @@
-# Vecto
+<p align="center">
+  <img src="assets/Vecto_Logo_1024x1024.png" width="120" alt="Vecto logo — a V made of pixels turning into a vector path"/>
+</p>
 
-**Pixels in, curves out.** A Windows desktop bitmap-to-vector tracer in the fashion of
-Vector Magic: full-color **planar** vectorization — every boundary between two shapes is
-fitted once and shared by both, so the output has no hairline gaps and no overlaps.
+<h1 align="center">Vecto — pixels in, curves out</h1>
 
-C# / .NET 8 / WPF. Engine (`Vecto.Core`) is dependency-free and headless; `vecto` CLI and
-a WPF app sit on top.
+<p align="center">
+  <b>Free, open-source image-to-vector converter for Windows.</b><br/>
+  Trace PNG and JPG images — logos, icons, illustrations, pixel art, scans — into clean, editable <b>SVG</b><br/>
+  with mathematically exact circles, true straight lines, and zero gaps between shapes.
+</p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"/>
+  <img src="https://img.shields.io/badge/platform-Windows-0C8CE9" alt="Windows"/>
+  <img src="https://img.shields.io/badge/.NET-8.0-512BD4" alt=".NET 8"/>
+  <img src="https://img.shields.io/badge/dependencies-zero%20(engine)-success" alt="zero-dependency engine"/>
+</p>
+
+![Vecto app — side-by-side comparison of a bitmap image and its traced vector version, dark UI](assets/screenshot.png)
+
+**Vecto** is a bitmap-to-vector tracing app (auto-tracer / image vectorizer) in the spirit of
+Vector Magic and Adobe Illustrator's Image Trace — but free, open source, and built around one
+structural idea: the traced image is a **planar partition**. Every boundary between two shapes
+is fitted *once* and shared by both sides, so the output physically cannot contain the hairline
+gaps and overlaps that plague most PNG-to-SVG converters.
+
+## Why Vecto instead of other vectorizers?
+
+- **No gaps, no overlaps — by construction.** Shared-boundary planar tracing (the same
+  property Vector Magic's output has, and stacked-layer tracers like potrace don't).
+- **Geometric intelligence.** Straight edges become true straight lines, circles and round
+  caps become mathematically exact arcs (least-squares circle fits) — not wobbly
+  approximations. Icons and logos come out looking *designed*, not traced.
+- **Sub-pixel precision.** Anti-aliasing encodes where the real edge is; Vecto reads it and
+  places boundaries at sub-pixel positions instead of snapping to the pixel grid.
+- **Live side-by-side compare** with synced zoom/pan, segmentation view, palette swatches,
+  and instant re-trace on every setting change. Copy the SVG straight to your clipboard.
+- **Fast.** A 250 px logo traces in ~60 ms; a 4K photo posterizes in ~4.5 s.
+- **Deterministic and tested.** Same input → byte-identical SVG; 14 geometric-invariant
+  tests (exact area preservation, corner exactness, circle accuracy, culture safety).
+- **Headless CLI + benchmark harness** for batch tracing and objective quality measurement.
+
+## Quick start
+
+```bash
+git clone https://github.com/DanielMevit/Vecto.git
+cd Vecto
+dotnet build -c Release          # Windows .NET 8 SDK
+./Vecto.App/bin/Release/net8.0-windows/Vecto.exe
 ```
-dotnet.exe build -c Release
-./Vecto.Cli/bin/Release/net8.0/vecto.exe trace logo.png -o logo.svg --stats
-"./Vecto.App/bin/Release/net8.0-windows/Vecto.exe"
+
+**App:** drop / paste (Ctrl+V) / open any PNG, JPG, BMP or GIF → automatic trace →
+export or copy SVG. Transparency is preserved. Tip: feed the highest-resolution image you
+have — trace quality scales with input size.
+
+**CLI:**
+
+```bash
+vecto trace logo.png -o logo.svg --stats       # vectorize an image
+vecto trace photo.jpg --style photo --colors 24
+vecto bench original.svg --scale 2             # round-trip quality benchmark vs ground truth
+vecto samples out/                             # generate test images
 ```
 
-- App: open/paste/drop an image → automatic trace → side-by-side compare with synced zoom,
-  segmentation view, palette swatches → export or copy SVG.
-- Engine pipeline and parameters: `docs/ai/ALGORITHM_INDEX.md`
-- Benchmark vs Vector Magic's own sample output: identical palette, 8 paths vs 8,
-  96 nodes vs 96, planarity deviation 0.00%.
+## How it works
 
-Start reading at `AGENTS.md` → `docs/ai/START_HERE.md`.
+Palette inference (weighted k-means++ in Oklab) → segmentation with small-region absorption
+→ **planar boundary graph** (every chain between junctions traced once, shared by both
+regions) → corner detection with sub-pixel validation → clamped smoothing + sub-pixel edge
+refinement → simplest-model-first fitting (line → circular arc → least-squares Bezier) →
+compact SVG. The full stage-by-stage map with parameters and code anchors lives in
+[`docs/ai/ALGORITHM_INDEX.md`](docs/ai/ALGORITHM_INDEX.md).
+
+Every algorithm is from the open literature (Schneider curve fitting, k-means++, Kåsa
+circle fit, Oklab, Douglas–Peucker) — no license-encumbered code anywhere in the engine.
+
+## Comparison
+
+| | Vecto | potrace / Inkscape | Illustrator Image Trace | Vector Magic |
+|---|---|---|---|---|
+| Price | **Free, MIT** | Free | Subscription | Paid |
+| Full color | ✅ | ⚠️ per-layer stacking | ✅ | ✅ |
+| Gap/overlap-free output | ✅ planar | ❌ | ⚠️ | ✅ |
+| Exact lines & circles | ✅ | lines only | ❌ | ❌ |
+| Open source | ✅ | ✅ | ❌ | ❌ |
+| Headless CLI + bench | ✅ | CLI only | ❌ | ❌ |
+
+## Roadmap
+
+Palette editor & tracing wizard, background removal, batch mode, PDF/EPS/DXF export,
+segmentation editing tools, centerline (stroke) tracing. See [ROADMAP.md](ROADMAP.md).
+
+## Contributing & docs
+
+The repo is agent-friendly and human-friendly: start at [`AGENTS.md`](AGENTS.md) →
+[`docs/ai/START_HERE.md`](docs/ai/START_HERE.md). Build must stay at 0 warnings; every
+engine change should pass `vecto bench` before/after. PRs welcome.
+
+## License
+
+[MIT](LICENSE) © Daniel Mevit. Engine (`Vecto.Core`) has zero dependencies; the CLI uses
+SixLabors.ImageSharp 3.1.x for image decoding.
+
+---
+
+*Keywords: image to vector converter, PNG to SVG, JPG to SVG, vectorize logo, image
+tracing software, auto trace, bitmap to vector graphics, free Vector Magic alternative,
+Illustrator Image Trace alternative, potrace alternative with color, SVG converter
+Windows, vectorizer C# .NET.*
