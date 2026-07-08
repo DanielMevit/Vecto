@@ -107,6 +107,21 @@ internal static class ChainGeometry
         if (closed) pts[n] = pts[0];
     }
 
+    /// <summary>Turn angle (degrees) at one vertex over a ±k window; 0 when out of range.</summary>
+    public static double TurnAngleAt(List<Vec2> pts, bool closed, int i, int k)
+    {
+        int n = closed ? pts.Count - 1 : pts.Count;
+        if (n < 2 * k + 1) return 0;
+        if (!closed && (i < k || i > n - 1 - k)) return 0;
+        int Wrap(int j) => closed ? ((j % n) + n) % n : j;
+        var v1 = pts[i] - pts[Wrap(i - k)];
+        var v2 = pts[Wrap(i + k)] - pts[i];
+        double l1 = v1.Length, l2 = v2.Length;
+        if (l1 < 1e-9 || l2 < 1e-9) return 0;
+        double cos = Math.Clamp(v1.Dot(v2) / (l1 * l2), -1.0, 1.0);
+        return Math.Acos(cos) * (180.0 / Math.PI);
+    }
+
     /// <summary>
     /// Sub-pixel edge refinement: slides each boundary point along its normal to where the
     /// source image's coverage crosses 50% between the two region colors. Anti-aliasing

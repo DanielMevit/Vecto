@@ -125,12 +125,30 @@ public class TracerTests
         Assert.Equal(2, doc.Regions.Count);
         var circle = doc.Regions.OrderBy(r => r.Area).First();
         var loop = Assert.Single(circle.Loops);
-        Assert.InRange(loop.Count, 3, 16);
+        Assert.InRange(loop.Count, 3, 8);
         foreach (var p in FlattenRegion(circle))
         {
             double r = Math.Sqrt((p.X - cx) * (p.X - cx) + (p.Y - cy) * (p.Y - cy));
-            Assert.InRange(r, radius - 1.2, radius + 1.2);
+            Assert.InRange(r, radius - 0.8, radius + 0.8);
         }
+    }
+
+    [Fact]
+    public void RoundedBox_SidesBecomeSingleLines()
+    {
+        var img = Make(220, 220, (x, y) =>
+        {
+            double qx = Math.Abs(x + 0.5 - 110) - 60, qy = Math.Abs(y + 0.5 - 110) - 60;
+            double ox = Math.Max(qx, 0), oy = Math.Max(qy, 0);
+            double dist = Math.Sqrt(ox * ox + oy * oy) + Math.Min(Math.Max(qx, qy), 0) - 20;
+            return dist <= 0 ? Red : White;
+        });
+        var doc = Tracer.Trace(img, new TraceOptions()).Document;
+        var box = doc.Regions.Single(r => doc.Palette[r.PaletteIndex].Color.G < 128);
+        var loop = Assert.Single(box.Loops);
+        int longLines = loop.Count(s => s.IsLine(0.1) && (s.P3 - s.P0).Length > 70);
+        Assert.Equal(4, longLines);
+        Assert.True(loop.Count <= 14, $"loop has {loop.Count} segments");
     }
 
     [Fact]

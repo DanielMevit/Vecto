@@ -1,5 +1,22 @@
 # Changelog — Vecto
 
+## v0.4.0 — 2026-07-08
+
+### Perfect circles + straight-run extraction
+- **Corner validation**: detected corners are re-measured on the refined sub-pixel
+  geometry (where staircase quantization spikes vanish); false corners are demoted and
+  the chain reprocessed. Small circles no longer get lattice-pinned dents — rings/dots
+  now reach the whole-circle arc fit and come out as exact circles.
+- **Arc-before-cubic** on spans ≥16 points; **greedy straight-run extraction** peels
+  truly straight prefixes/suffixes off mixed ranges ([line][cap][line] with no corner);
+  **collinear line merge** heals sides split by chain seams or max-error splits.
+- Tests 14 green (new: rounded-box sides must be exactly 4 single lines; circle radial
+  bound tightened to 0.8 px, segment cap 8).
+- Resolution finding (bench, 1× vs 2× raster of the same ground truth): mean ΔE and
+  wrong-pixel rates halve at 2× — input resolution is the cheapest quality lever.
+- Photo sanity check: 4K Windows Bloom wallpaper → 24 colors, 2 251 regions, 54 594
+  nodes in 4.5 s end-to-end.
+
 ## v0.3.0 — 2026-07-08
 
 ### Geometric primitives in the fitter (icons stop wobbling)

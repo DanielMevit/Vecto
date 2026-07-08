@@ -10,6 +10,47 @@ internal static class BezierFitter
 {
     public static List<CubicBezier> FitChain(List<Vec2> pts, bool closed, List<int> corners, double tolSq)
     {
+        var output = FitChainCore(pts, closed, corners, tolSq);
+        MergeCollinearLines(output, closed, tolSq);
+        return output;
+    }
+
+    /// <summary>
+    /// Consecutive straight segments whose shared vertex sits on the merged chord collapse
+    /// into one line — heals sides split by the chain seam or by max-error splits.
+    /// </summary>
+    static void MergeCollinearLines(List<CubicBezier> segs, bool closed, double tolSq)
+    {
+        bool merged = true;
+        while (merged && segs.Count > 1)
+        {
+            merged = false;
+            int limit = closed ? segs.Count : segs.Count - 1;
+            for (int i = 0; i < limit && segs.Count > 1; i++)
+            {
+                int j = (i + 1) % segs.Count;
+                var a = segs[i];
+                var b = segs[j];
+                if (!a.IsLine() || !b.IsLine()) continue;
+                var start = a.P0;
+                var mid = a.P3;
+                var end = b.P3;
+                var chord = end - start;
+                double len2 = chord.LengthSq;
+                if (len2 < 1e-12) continue;
+                double t = Math.Clamp((mid - start).Dot(chord) / len2, 0, 1);
+                if (mid.DistSq(start + chord * t) > tolSq) continue;
+                segs[i] = CubicBezier.Line(start, end);
+                segs.RemoveAt(j);
+                merged = true;
+                if (j < i) i--;
+                limit = closed ? segs.Count : segs.Count - 1;
+            }
+        }
+    }
+
+    static List<CubicBezier> FitChainCore(List<Vec2> pts, bool closed, List<int> corners, double tolSq)
+    {
         var output = new List<CubicBezier>();
         if (pts.Count < 2) return output;
 
@@ -90,6 +131,27 @@ internal static class BezierFitter
             for (int i = first; i < last; i++) output.Add(CubicBezier.Line(d[i], d[i + 1]));
             return;
         }
+        // circles get first claim on long spans — a cubic could squeak under tolerance on a
+        // quarter-ring, but the arc is the true model (and whole rings land here too)
+        if (last - first + 1 >= 16 && TryArc(d, first, last, tolSq, output)) return;
+        // greedy straight-run extraction: icon outlines are [line][cap][line] with no corner
+        // between — peel truly straight runs off either end instead of bowing one cubic over all
+        double runTolSq = tolSq * 0.35;
+        const int MinRun = 16;
+        int pj = LongestLinePrefix(d, first, last, runTolSq, MinRun);
+        if (pj - first >= MinRun && pj < last)
+        {
+            output.Add(CubicBezier.Line(d[first], d[pj]));
+            FitCubic(d, pj, last, LeftTangent(d, pj, last), tHat2, tolSq, output, depth + 1);
+            return;
+        }
+        int sj = LongestLineSuffix(d, first, last, runTolSq, MinRun);
+        if (last - sj >= MinRun && sj > first)
+        {
+            FitCubic(d, first, sj, tHat1, RightTangent(d, sj, first), tolSq, output, depth + 1);
+            output.Add(CubicBezier.Line(d[sj], d[last]));
+            return;
+        }
         var u = ChordLengthParameterize(d, first, last);
         var bez = GenerateBezier(d, first, last, u, tHat1, tHat2);
         var (err, split) = ComputeMaxError(d, first, last, bez, u);
@@ -124,18 +186,41 @@ internal static class BezierFitter
 
     static bool TryLine(List<Vec2> d, int first, int last, double tolSq, List<CubicBezier> output)
     {
-        var a = d[first];
-        var b = d[last];
-        var ab = b - a;
+        if (!LineFits(d, first, last, tolSq)) return false;
+        output.Add(CubicBezier.Line(d[first], d[last]));
+        return true;
+    }
+
+    static bool LineFits(List<Vec2> d, int a, int b, double tolSq)
+    {
+        var p0 = d[a];
+        var ab = d[b] - p0;
         double len2 = ab.LengthSq;
         if (len2 < 1e-12) return false;
-        for (int i = first + 1; i < last; i++)
+        for (int i = a + 1; i < b; i++)
         {
-            double t = Math.Clamp((d[i] - a).Dot(ab) / len2, 0, 1);
-            if (d[i].DistSq(a + ab * t) > tolSq) return false;
+            double t = Math.Clamp((d[i] - p0).Dot(ab) / len2, 0, 1);
+            if (d[i].DistSq(p0 + ab * t) > tolSq) return false;
         }
-        output.Add(CubicBezier.Line(a, b));
         return true;
+    }
+
+    static int LongestLinePrefix(List<Vec2> d, int first, int last, double tolSq, int minRun)
+    {
+        if (first + minRun > last || !LineFits(d, first, first + minRun, tolSq)) return first;
+        int j = first + minRun;
+        while (j + 8 <= last && LineFits(d, first, j + 8, tolSq)) j += 8;
+        while (j + 1 <= last && LineFits(d, first, j + 1, tolSq)) j++;
+        return j;
+    }
+
+    static int LongestLineSuffix(List<Vec2> d, int first, int last, double tolSq, int minRun)
+    {
+        if (last - minRun < first || !LineFits(d, last - minRun, last, tolSq)) return last;
+        int j = last - minRun;
+        while (j - 8 >= first && LineFits(d, j - 8, last, tolSq)) j -= 8;
+        while (j - 1 >= first && LineFits(d, j - 1, last, tolSq)) j--;
+        return j;
     }
 
     /// <summary>

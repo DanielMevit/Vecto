@@ -15,6 +15,9 @@ removal; plus tuning-backlog items as they bite.
 - `Vecto.App` — WPF UI (assembly `Vecto`), thin layer over Core.
 - `Vecto.Tests` — xUnit; geometric invariants, not snapshots.
 
+**Fresh clone?** Run `codegraph init` once in the repo root — the CodeGraph index is a
+local build artifact (gitignored by design, see the setup playbook); it rebuilds in seconds.
+
 ## Build / test / run (from WSL — always `dotnet.exe`, see GOTCHAS)
 ```
 dotnet.exe build -c Release          # must be 0 warnings / 0 errors

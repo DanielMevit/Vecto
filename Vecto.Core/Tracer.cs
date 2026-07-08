@@ -93,13 +93,35 @@ public static class Tracer
             if (options.CurveFitting)
             {
                 var corners = ChainGeometry.DetectCorners(chain.Points, chain.Closed, p.CornerThresholdDeg, p.CornerSupport);
-                ChainGeometry.SmoothInPlace(chain.Points, chain.Closed, corners, p.SmoothIterations, p.SmoothLambda, p.SmoothClamp);
-                ChainGeometry.SubpixelRefine(chain.Points, chain.Closed, corners, img,
-                    ColorOf(chain.Left), ColorOf(chain.Right), p.SubpixelMaxShift);
-                // light second pass: per-point refinement estimates jitter; smoothing them
-                // (clamped to the refined positions) costs <0.25px but many fewer nodes
-                ChainGeometry.SmoothInPlace(chain.Points, chain.Closed, corners, 3, 0.5, 0.25);
+                var raw = corners.Count > 0 ? new List<Vec2>(chain.Points) : null;
+                Process(corners);
+                if (corners.Count > 0)
+                {
+                    // corner validation: re-measure on the refined sub-pixel geometry, where
+                    // staircase quantization spikes are gone. False corners (small circles!)
+                    // would pin lattice dents and block the whole-ring arc fit.
+                    var kept = corners
+                        .Where(c => ChainGeometry.TurnAngleAt(chain.Points, chain.Closed, c, p.CornerSupport) >= 55)
+                        .ToList();
+                    if (kept.Count != corners.Count)
+                    {
+                        chain.Points.Clear();
+                        chain.Points.AddRange(raw!);
+                        corners = kept;
+                        Process(corners);
+                    }
+                }
                 chain.Curve = BezierFitter.FitChain(chain.Points, chain.Closed, corners, p.FitToleranceSq);
+
+                void Process(List<int> pins)
+                {
+                    ChainGeometry.SmoothInPlace(chain.Points, chain.Closed, pins, p.SmoothIterations, p.SmoothLambda, p.SmoothClamp);
+                    ChainGeometry.SubpixelRefine(chain.Points, chain.Closed, pins, img,
+                        ColorOf(chain.Left), ColorOf(chain.Right), p.SubpixelMaxShift);
+                    // light second pass: per-point refinement estimates jitter; smoothing them
+                    // (clamped to the refined positions) costs <0.25px but many fewer nodes
+                    ChainGeometry.SmoothInPlace(chain.Points, chain.Closed, pins, 3, 0.5, 0.25);
+                }
             }
             else
             {
