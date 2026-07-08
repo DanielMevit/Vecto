@@ -43,10 +43,22 @@ gaps and overlaps that plague most PNG-to-SVG converters.
 
 ## Install
 
-**Requirements:** Windows 10/11 and the free
-[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (needed to build from
-source — no other setup). Prebuilt downloads that skip this step will ship on the
-Releases page.
+### Option 1 — Download (recommended, no setup)
+
+Grab the latest from the **[Releases page](https://github.com/DanielMevit/Vecto/releases)**:
+
+- **`Vecto-x.y.z.exe`** — the desktop app as one self-contained file. Download, run, done —
+  no .NET, no installer.
+- **`Vecto-x.y.z-win-x64.zip`** — the app **plus the `vecto` command-line tool** (unzip
+  anywhere; add the folder to `PATH` to use `vecto` from any terminal).
+
+SHA-256 checksums are listed in each release. Windows SmartScreen may warn on first run
+(new, unsigned executable) — choose *More info → Run anyway*.
+
+### Option 2 — Build from source
+
+Requires Windows 10/11 and the free
+[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0):
 
 ```bash
 git clone https://github.com/DanielMevit/Vecto.git
