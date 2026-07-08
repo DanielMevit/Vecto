@@ -80,6 +80,11 @@ internal static class BezierFitter
             output.Add(HeuristicSegment(d[first], d[last], tHat1, tHat2));
             return;
         }
+        // simplest-model-first: a chord that explains every point within tolerance IS a
+        // straight line — the residual staircase wobble is quantization noise, not signal.
+        // (Chords can tilt up to the lattice error of their pinned endpoints; sub-pixel
+        // junction relaxation is the roadmap fix that would tighten this further.)
+        if (TryLine(d, first, last, tolSq, output)) return;
         if (depth > 28)
         {
             for (int i = first; i < last; i++) output.Add(CubicBezier.Line(d[i], d[i + 1]));
@@ -107,11 +112,109 @@ internal static class BezierFitter
                 }
             }
         }
+        // one cubic can't hold it — a circular arc often can (caps, dots, ring segments,
+        // and whole circles: a closed no-corner ring lands here with a zero-length chord)
+        if (TryArc(d, first, last, tolSq, output)) return;
         var tCenter = (d[split - 1] - d[split + 1]).Normalized();
         if (tCenter.LengthSq < 0.5) tCenter = (d[first] - d[last]).Normalized();
         if (tCenter.LengthSq < 0.5) tCenter = new Vec2(0, 1);
         FitCubic(d, first, split, tHat1, tCenter, tolSq, output, depth + 1);
         FitCubic(d, split, last, -tCenter, tHat2, tolSq, output, depth + 1);
+    }
+
+    static bool TryLine(List<Vec2> d, int first, int last, double tolSq, List<CubicBezier> output)
+    {
+        var a = d[first];
+        var b = d[last];
+        var ab = b - a;
+        double len2 = ab.LengthSq;
+        if (len2 < 1e-12) return false;
+        for (int i = first + 1; i < last; i++)
+        {
+            double t = Math.Clamp((d[i] - a).Dot(ab) / len2, 0, 1);
+            if (d[i].DistSq(a + ab * t) > tolSq) return false;
+        }
+        output.Add(CubicBezier.Line(a, b));
+        return true;
+    }
+
+    /// <summary>
+    /// Circular-arc hypothesis: algebraic least-squares circle (Kåsa) through the range;
+    /// accepted when every point sits within tolerance of the circle. Emitted as ≤90°
+    /// cubic pieces whose endpoints stay EXACTLY at the range endpoints (they are shared
+    /// with neighboring segments and, at junctions, with other chains).
+    /// </summary>
+    static bool TryArc(List<Vec2> d, int first, int last, double tolSq, List<CubicBezier> output)
+    {
+        int n = last - first + 1;
+        if (n < 6) return false;
+
+        double sx = 0, sy = 0, sxx = 0, syy = 0, sxy = 0, sxz = 0, syz = 0, sz = 0;
+        for (int i = first; i <= last; i++)
+        {
+            double x = d[i].X, y = d[i].Y, z = x * x + y * y;
+            sx += x; sy += y; sxx += x * x; syy += y * y; sxy += x * y;
+            sxz += x * z; syz += y * z; sz += z;
+        }
+        // x² + y² = A·x + B·y + C  (linear least squares, 3×3 Cramer)
+        double m00 = sxx, m01 = sxy, m02 = sx;
+        double m10 = sxy, m11 = syy, m12 = sy;
+        double m20 = sx, m21 = sy, m22 = n;
+        double det = m00 * (m11 * m22 - m12 * m21) - m01 * (m10 * m22 - m12 * m20) + m02 * (m10 * m21 - m11 * m20);
+        if (Math.Abs(det) < 1e-9) return false;
+        double detA = sxz * (m11 * m22 - m12 * m21) - m01 * (syz * m22 - m12 * sz) + m02 * (syz * m21 - m11 * sz);
+        double detB = m00 * (syz * m22 - m12 * sz) - sxz * (m10 * m22 - m12 * m20) + m02 * (m10 * sz - syz * m20);
+        double detC = m00 * (m11 * sz - syz * m21) - m01 * (m10 * sz - syz * m20) + sxz * (m10 * m21 - m11 * m20);
+        double ca = detA / det, cb = detB / det, cc = detC / det;
+        var center = new Vec2(ca / 2, cb / 2);
+        double r2 = cc + center.LengthSq;
+        if (r2 <= 0.25 || r2 > 1e10) return false;
+        double radius = Math.Sqrt(r2);
+
+        double tol = Math.Sqrt(tolSq);
+        for (int i = first; i <= last; i++)
+        {
+            double dev = Math.Abs((d[i] - center).Length - radius);
+            if (dev > tol) return false;
+        }
+
+        // unwrapped total sweep (handles full rings, where the chord is zero)
+        double sweep = 0;
+        double prevAngle = Math.Atan2(d[first].Y - center.Y, d[first].X - center.X);
+        for (int i = first + 1; i <= last; i++)
+        {
+            double ang = Math.Atan2(d[i].Y - center.Y, d[i].X - center.X);
+            double delta = ang - prevAngle;
+            while (delta > Math.PI) delta -= 2 * Math.PI;
+            while (delta <= -Math.PI) delta += 2 * Math.PI;
+            sweep += delta;
+            prevAngle = ang;
+        }
+        if (Math.Abs(sweep) < 0.05 || Math.Abs(sweep) > 2.05 * Math.PI) return false;
+
+        var pStart = d[first];
+        var pEnd = d[last];
+        double rStart = (pStart - center).Length;
+        double rEnd = (pEnd - center).Length;
+        double angStart = Math.Atan2(pStart.Y - center.Y, pStart.X - center.X);
+        int pieces = Math.Max(1, (int)Math.Ceiling(Math.Abs(sweep) / (Math.PI / 2)));
+        double pieceSweep = sweep / pieces;
+        double k = 4.0 / 3.0 * Math.Tan(pieceSweep / 4);
+        var e0 = pStart;
+        for (int i = 0; i < pieces; i++)
+        {
+            double t1 = (i + 1) / (double)pieces;
+            double a0 = angStart + pieceSweep * i;
+            double a1 = angStart + pieceSweep * (i + 1);
+            double r0 = rStart + (rEnd - rStart) * (i / (double)pieces);
+            double r1 = rStart + (rEnd - rStart) * t1;
+            var e1 = i == pieces - 1 ? pEnd : center + new Vec2(Math.Cos(a1), Math.Sin(a1)) * r1;
+            var t0v = new Vec2(-Math.Sin(a0), Math.Cos(a0));
+            var t1v = new Vec2(-Math.Sin(a1), Math.Cos(a1));
+            output.Add(new CubicBezier(e0, e0 + t0v * (k * r0), e1 - t1v * (k * r1), e1));
+            e0 = e1;
+        }
+        return true;
     }
 
     static CubicBezier HeuristicSegment(Vec2 p0, Vec2 p3, Vec2 t1, Vec2 t2)

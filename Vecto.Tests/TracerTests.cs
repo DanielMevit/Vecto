@@ -129,8 +129,27 @@ public class TracerTests
         foreach (var p in FlattenRegion(circle))
         {
             double r = Math.Sqrt((p.X - cx) * (p.X - cx) + (p.Y - cy) * (p.Y - cy));
-            Assert.InRange(r, radius - 1.6, radius + 1.6);
+            Assert.InRange(r, radius - 1.2, radius + 1.2);
         }
+    }
+
+    [Fact]
+    public void DiagonalBand_StraightEdgesBecomeSingleLines()
+    {
+        // crisp 30° band across the whole canvas: its long edges must collapse to true
+        // straight lines (one segment each), not chains of wobbly cubics
+        double sin = Math.Sin(Math.PI / 6), cos = Math.Cos(Math.PI / 6);
+        var img = Make(200, 200, (x, y) =>
+        {
+            double dist = (y + 0.5 - 100) * cos - (x + 0.5 - 100) * sin;
+            return Math.Abs(dist) <= 15 ? Black : White;
+        });
+        var doc = Tracer.Trace(img, new TraceOptions()).Document;
+        var band = doc.Regions.Single(r => doc.Palette[r.PaletteIndex].Color.R < 128);
+        var loop = Assert.Single(band.Loops);
+        Assert.True(loop.Count <= 8, $"band loop has {loop.Count} segments");
+        int longLines = loop.Count(s => s.IsLine(0.1) && (s.P3 - s.P0).Length > 100);
+        Assert.Equal(2, longLines);
     }
 
     [Fact]

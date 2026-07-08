@@ -23,10 +23,16 @@
 ## Tuning backlog (quality, engine)
 - ~~Sub-pixel edge placement from AA gradients~~ **done 2026-07-08** (`SubpixelRefine`;
   mean ΔE −40% across the ground-truth bench)
-- Node economy: still ~1.5–2× Vector Magic's node counts at equal detail — smarter
-  tangent estimation or two-pass fitting could close it
-- Sub-pixel corner/junction relocation (corners and junctions stay pinned to integer
-  lattice points; diff hotspots concentrate there)
+- ~~Line/arc primitive recognition~~ **done 2026-07-08** (`TryLine`/`TryArc` in the
+  fitter: straight edges → single lines, circles/caps → exact arcs; band test enforces it)
+- **Sub-pixel corner/junction relocation** — now the top quality lever: pinned lattice
+  endpoints tilt accepted lines by up to ~0.5 px and diff hotspots concentrate at cusps.
+  Junctions need a consistent multi-chain solve; corners are chain-local and easy.
+- Angle snapping for lines (0°/45°/90° within ~1°) — cheap once endpoints can move
+- Node economy: ~1.4–1.8× Vector Magic's counts at equal detail — smarter tangent
+  estimation or two-pass fitting could close the rest
+- Centerline/stroke recognition (constant-width shapes → path + stroke weight + round
+  caps) — the "Tier 3" mode; big lift, transforms icon output quality
 - Gentle-slope staircases: constrained line detection would beat Laplacian+fit on
   near-horizontal edges
 - `MinRegionArea` scaling with image resolution; photo-mode color count heuristics

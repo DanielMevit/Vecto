@@ -1,5 +1,20 @@
 # Changelog — Vecto
 
+## v0.3.0 — 2026-07-08
+
+### Geometric primitives in the fitter (icons stop wobbling)
+- Simplest-model-first fitting per range: straight-chord test (`TryLine`) before the
+  cubic, least-squares circle arc (`TryArc`, Kåsa fit) before recursive splitting.
+  Straight edges now emit single `L` segments and circles/round caps emit exact arc
+  geometry (≤90° cubic pieces, endpoints kept exact — planarity preserved). A closed
+  no-corner ring lands in the arc path automatically, so dots/heads become true circles.
+- New test: a 30° band across the canvas must produce exactly 2 straight lines for its
+  long edges (≤8 segments total); circle radial-error bound tightened 1.6 → 1.2 px.
+- Bench: node counts −11…−18% (gt-crisp 508→454, gt-blend 705→579, transparency
+  339→303) at flat ΔE; VM logo 118→116 nodes. Known trade documented in ROADMAP:
+  chord endpoints pinned to the lattice can tilt accepted lines ~0.5 px — sub-pixel
+  junction/corner relocation is the next quality lever.
+
 ## v0.2.0 — 2026-07-08
 
 ### Ground-truth evaluation harness + sub-pixel quality pass
