@@ -14,7 +14,15 @@
 - Wireframe/nodes view (third right-pane mode)
 - Batch mode in CLI (`vecto trace *.png --out-dir`)
 
-## Phase 5 — Power features
+## Phase 5 — Cross-platform (Linux + macOS)
+- Quick win: publish `vecto` CLI for linux-x64 / osx-x64 / osx-arm64 (Core+Cli are already
+  cross-platform; three `dotnet publish -r` commands) and attach to Releases
+- Port the app WPF → Avalonia UI (single codebase for Win/Linux/macOS; Core reused 100%,
+  ViewModel ~90%, theme translates style-for-style). MAUI ruled out — no Linux support
+- GitHub Actions release matrix (build all targets on tag push); macOS needs notarization
+  (Apple dev account) to avoid Gatekeeper friction
+
+## Phase 6 — Power features
 - Exporters: PDF, EPS, DXF, AI (mirror VM's formats.dll split as Vecto.Formats)
 - Segmentation editor: pencil/zap/fill-gaps (VM's edit-result tools)
 - PNG/bitmap export of the vector render
