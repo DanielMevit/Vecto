@@ -24,7 +24,7 @@ const year = 2026;
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://danielmevit.github.io/Vecto/" />
-    <meta property="og:image" content="/Vecto/assets/Vecto_Logo_1024x1024.png" />
+    <meta property="og:image" content="https://github.com/DanielMevit/Vecto/blob/main/assets/Vecto_Logo_1024x1024.png?raw=true" />
     <meta property="og:site_name" content="Vecto" />
 
     <style>
@@ -38,6 +38,7 @@ const year = 2026;
         --color-muted: #8b949e;
         --color-border: #30363d;
         --color-shadow: rgba(0, 0, 0, 0.4);
+        --color-hover: #1f242c;
       }
 
       body {
@@ -61,10 +62,10 @@ const year = 2026;
       }
 
       h1 {
-        font-size: 3rem;
+        font-size: 3.5rem;
         font-weight: 600;
         letter-spacing: -0.02em;
-        margin-bottom: 0.5rem;
+        margin: 0;
       }
 
       h2 {
@@ -104,13 +105,20 @@ const year = 2026;
         margin-bottom: 6rem;
       }
 
+      .header-title-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
       .logo-link {
-        display: inline-block;
-        margin-bottom: 1rem;
+        display: flex;
       }
 
       .logo-img {
-        width: 120px;
+        width: 80px; 
         height: auto;
       }
 
@@ -118,15 +126,12 @@ const year = 2026;
         font-size: 1.25rem;
         color: var(--color-muted);
         max-width: 640px;
-        margin: 0 auto;
+        margin: 0 auto 1.5rem auto;
       }
 
-      /* Content Section Structure */
-      section {
-        margin-bottom: 6rem;
-      }
+      section { margin-bottom: 6rem; }
 
-      /* Grid for Differentiators and FAQ */
+      /* Grid for Differentiators */
       .grid-3 {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -148,23 +153,114 @@ const year = 2026;
         font-weight: 600;
       }
 
-      /* Code Block Styling */
+      /* FAQ Accordion Styling */
+      .faq-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .faq-item {
+        background-color: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        overflow: hidden;
+        transition: background-color 0.2s ease;
+      }
+      
+      .faq-item:hover {
+        background-color: var(--color-hover);
+      }
+
+      .faq-item summary {
+        padding: 1.5rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--color-heading);
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        user-select: none;
+      }
+
+      .faq-item summary::-webkit-details-marker { display: none; }
+
+      .faq-item summary::after {
+        content: '+';
+        color: var(--color-blue);
+        font-size: 1.5rem;
+        line-height: 1;
+        font-weight: 400;
+      }
+
+      .faq-item[open] summary {
+        border-bottom: 1px solid var(--color-border);
+        background-color: var(--color-card-bg);
+      }
+
+      .faq-item[open] summary::after { content: '−'; }
+
+      .faq-content {
+        padding: 1.5rem 2rem;
+        color: var(--color-text);
+        background-color: var(--color-bg);
+      }
+
+      .faq-content p:last-child { margin-bottom: 0; }
+
+      /* Code Block & Copy Button Styling */
+      .code-wrapper {
+        position: relative;
+        margin-bottom: 2rem;
+      }
+
       pre {
         background-color: var(--color-card-bg);
         border: 1px solid var(--color-border);
         color: var(--color-text);
         padding: 1.5rem;
+        padding-top: 2.5rem; /* Extra space for the button */
         border-radius: 8px;
         overflow-x: auto;
         font-size: 0.9rem;
-        margin-bottom: 2rem;
+        margin: 0;
+      }
+
+      .copy-button {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background-color: transparent;
+        border: 1px solid var(--color-border);
+        color: var(--color-muted);
+        border-radius: 6px;
+        padding: 0.4rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+
+      .copy-button:hover {
+        background-color: var(--color-hover);
+        color: var(--color-text);
+        border-color: var(--color-muted);
+      }
+
+      .copy-button svg {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
       }
 
       code { 
         font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; 
       }
       
-      /* Inline code snippets */
       p code, li code {
         background-color: rgba(110, 118, 129, 0.4);
         padding: 0.2em 0.4em;
@@ -205,10 +301,12 @@ const year = 2026;
   <body>
     <main>
       <header>
-        <a href="https://github.com/DanielMevit/Vecto" class="logo-link">
-          <img src="/Vecto/assets/Vecto_Logo_1024x1024.png" alt="Vecto logo — a V made of pixels turning into a vector path" class="logo-img" />
-        </a>
-        <h1>Vecto</h1>
+        <div class="header-title-container">
+          <a href="https://github.com/DanielMevit/Vecto" class="logo-link">
+            <img src="https://github.com/DanielMevit/Vecto/blob/main/assets/Vecto_Logo_1024x1024.png?raw=true" alt="Vecto logo" class="logo-img" />
+          </a>
+          <h1>Vecto</h1>
+        </div>
         <p class="header-desc">
           Free, open-source bitmap-to-vector tracing app that converts PNG/JPG images into clean, editable SVG based on a planar partition model.
         </p>
@@ -218,7 +316,7 @@ const year = 2026;
       </header>
 
       <section class="visual-comparison">
-        <img src="/Vecto/assets/screenshot.png" alt="Vecto application screenshot, showing a side-by-side comparison of a bitmap image and its traced vector counterpart, with a dark UI" />
+        <img src="https://github.com/DanielMevit/Vecto/blob/main/assets/screenshot.png?raw=true" alt="Vecto application screenshot, showing a side-by-side comparison of a bitmap image and its traced vector counterpart, with a dark UI" />
         <p class="visual-caption">Vecto features a live side-by-side comparison with synced zoom and pan.</p>
       </section>
 
@@ -262,9 +360,17 @@ const year = 2026;
         
         <h3>Build From Source</h3>
         <p>Requires Windows 10/11 and the free .NET 8 SDK:</p>
-        <pre><code>git clone https://github.com/DanielMevit/Vecto.git
+        
+        <div class="code-wrapper">
+          <button class="copy-button" aria-label="Copy code">
+            <svg class="copy-icon" viewBox="0 0 16 16" version="1.1" aria-hidden="true"><path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path><path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path></svg>
+            <svg class="check-icon" viewBox="0 0 16 16" version="1.1" aria-hidden="true" style="display: none; color: #3fb950;"><path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path></svg>
+          </button>
+<pre><code>git clone https://github.com/DanielMevit/Vecto.git
 cd Vecto
 dotnet build -c Release</code></pre>
+        </div>
+        
         <p>After the build, binaries will be located at:</p>
         <ul>
           <li><strong>Desktop App:</strong> <code>Vecto.App\bin\Release\net8.0-windows\Vecto.exe</code></li>
@@ -282,7 +388,12 @@ dotnet build -c Release</code></pre>
         </ul>
         
         <h3>CLI Usage Examples</h3>
-        <pre><code># Vectorize an image
+        <div class="code-wrapper">
+          <button class="copy-button" aria-label="Copy code">
+            <svg class="copy-icon" viewBox="0 0 16 16" version="1.1" aria-hidden="true"><path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path><path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path></svg>
+            <svg class="check-icon" viewBox="0 0 16 16" version="1.1" aria-hidden="true" style="display: none; color: #3fb950;"><path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path></svg>
+          </button>
+<pre><code># Vectorize an image
 vecto trace logo.png -o logo.svg --stats
 
 # Tracing style and color control
@@ -290,6 +401,7 @@ vecto trace photo.jpg --style photo --colors 24
 
 # Quality benchmark vs ground truth
 vecto bench original.svg --scale 2</code></pre>
+        </div>
       </section>
       
       <section aria-labelledby="roadmap">
@@ -307,26 +419,34 @@ vecto bench original.svg --scale 2</code></pre>
         <h2 id="faq">Frequently Asked Questions</h2>
         <p>Common questions from developers and users about Vecto.</p>
         
-        <div class="grid-3">
-          <article class="grid-card">
-            <h3>What problem does Vecto solve?</h3>
-            <p>Vecto solves the problem of hairline gaps and overlaps that plague most open-source vectorizers. Its shared-boundary planar partition model makes it ideal for clean, deterministic logo conversion.</p>
-          </article>
+        <div class="faq-container">
+          <details class="faq-item">
+            <summary>What problem does Vecto solve?</summary>
+            <div class="faq-content">
+              <p>Vecto solves the problem of hairline gaps and overlaps that plague most open-source vectorizers. Its shared-boundary planar partition model makes it ideal for clean, deterministic logo conversion.</p>
+            </div>
+          </details>
           
-          <article class="grid-card">
-            <h3>Is Vecto completely local?</h3>
-            <p>Yes. The engine (<code>Vecto.Core</code>) runs entirely on your local machine and has zero external dependencies. Your images are never sent to third-party APIs.</p>
-          </article>
+          <details class="faq-item">
+            <summary>Is Vecto completely local?</summary>
+            <div class="faq-content">
+              <p>Yes. The engine (<code>Vecto.Core</code>) runs entirely on your local machine and has zero external dependencies. Your images are never sent to third-party APIs.</p>
+            </div>
+          </details>
 
-          <article class="grid-card">
-            <h3>Does Vecto support full color?</h3>
-            <p>Yes. Vecto performs a color segmentation with palette inference (weighted k-means++ in Oklab) that allows it to trace and fit every colored shape as a true planar region.</p>
-          </article>
+          <details class="faq-item">
+            <summary>Does Vecto support full color?</summary>
+            <div class="faq-content">
+              <p>Yes. Vecto performs a color segmentation with palette inference (weighted k-means++ in Oklab) that allows it to trace and fit every colored shape as a true planar region.</p>
+            </div>
+          </details>
           
-          <article class="grid-card">
-            <h3>Can I contribute to Vecto?</h3>
-            <p>Absolutely. The repository is designed to be agent and human-friendly. Please start at <a href="https://github.com/DanielMevit/Vecto/blob/main/AGENTS.md"><code>AGENTS.md</code></a> or <a href="https://github.com/DanielMevit/Vecto/blob/main/docs/ai/START_HERE.md"><code>docs/ai/START_HERE.md</code></a>. The build must stay at 0 warnings and pass the <code>vecto bench</code> verification.</p>
-          </article>
+          <details class="faq-item">
+            <summary>Can I contribute to Vecto?</summary>
+            <div class="faq-content">
+              <p>Absolutely. The repository is designed to be agent and human-friendly. Please start at <a href="https://github.com/DanielMevit/Vecto/blob/main/AGENTS.md"><code>AGENTS.md</code></a> or <a href="https://github.com/DanielMevit/Vecto/blob/main/docs/ai/START_HERE.md"><code>docs/ai/START_HERE.md</code></a>. The build must stay at 0 warnings and pass the <code>vecto bench</code> verification.</p>
+            </div>
+          </details>
         </div>
       </section>
       
@@ -336,5 +456,33 @@ vecto bench original.svg --scale 2</code></pre>
       <p>&copy; {year} {author}. Vecto is licensed under the <a href="https://github.com/DanielMevit/Vecto/blob/main/LICENSE">MIT License</a>.</p>
       <p>Keywords: PNG to SVG, vectorize image, C# vectorization, auto trace software.</p>
     </footer>
+
+    <!-- Script to handle Copy to Clipboard -->
+    <script>
+      document.querySelectorAll('.code-wrapper').forEach(wrapper => {
+        const button = wrapper.querySelector('.copy-button');
+        const code = wrapper.querySelector('code');
+        const copyIcon = button.querySelector('.copy-icon');
+        const checkIcon = button.querySelector('.check-icon');
+
+        button.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            
+            // Swap icons
+            copyIcon.style.display = 'none';
+            checkIcon.style.display = 'block';
+            
+            // Revert after 2 seconds
+            setTimeout(() => {
+              copyIcon.style.display = 'block';
+              checkIcon.style.display = 'none';
+            }, 2000);
+          } catch (err) {
+            console.error('Failed to copy text: ', err);
+          }
+        });
+      });
+    </script>
   </body>
 </html>
