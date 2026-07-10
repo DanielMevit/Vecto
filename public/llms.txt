@@ -1,0 +1,24 @@
+# Vecto
+
+> Free, open-source bitmap-to-vector tracing app (auto-tracer / image vectorizer) that traces PNG and JPG images into clean, editable SVG based on a planar partition model.
+
+## Tech Stack
+* Language: C#
+* Framework: .NET 8.0
+* Environment: Windows (WPF Desktop App) and Cross-Platform CLI (Windows, Linux, macOS)
+* Core Engine: Zero-dependency, deterministic `Vecto.Core`
+* CLI Dependencies: SixLabors.ImageSharp
+
+## Key Features & Differentiators
+* **Planar Partition Architecture:** Every boundary between two shapes is fitted once and shared by both sides, ensuring the SVG output physically cannot contain hairline gaps or overlaps.
+* **Geometric Intelligence:** Straight edges become true straight lines, and circles/round caps become mathematically exact arcs via least-squares circle fits rather than wobbly approximations.
+* **Sub-Pixel Precision:** Reads anti-aliasing to place boundaries at exact sub-pixel positions rather than snapping to the pixel grid.
+* **Performance:** High-speed tracing processing (e.g., a 250px logo traces in ~60ms; a 4K photo posterizes in ~4.5s).
+* **Deterministic Output:** Byte-identical SVG output for identical inputs. Includes 14 geometric-invariant tests verifying area preservation, corner exactness, and circle accuracy.
+
+## Build From Source
+Requires the free .NET 8 SDK:
+```bash
+git clone [https://github.com/DanielMevit/Vecto.git](https://github.com/DanielMevit/Vecto.git)
+cd Vecto
+dotnet build -c Release
