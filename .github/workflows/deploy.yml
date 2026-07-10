@@ -18,8 +18,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Install, build, and upload your site
         uses: withastro/action@v3
-        # with:
-          # path: . # Uncomment and set this if your Astro project is inside a subfolder, like ./docs
+        with:
+          package-manager: npm
 
   deploy:
     needs: build
