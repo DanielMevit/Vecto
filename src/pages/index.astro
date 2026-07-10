@@ -4,7 +4,7 @@ const description = "Free, high-accuracy planar image tracing with exact circles
 const author = "Daniel Mevit";
 const year = 2026; 
 ---
-
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -24,7 +24,7 @@ const year = 2026;
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://danielmevit.github.io/Vecto/" />
-    <meta property="og:image" content="https://github.com/DanielMevit/Vecto/blob/main/assets/Vecto_Logo_1024x1024.png?raw=true" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/DanielMevit/Vecto/main/assets/Vecto_Logo_1024x1024.png" />
     <meta property="og:site_name" content="Vecto" />
 
     <style>
@@ -207,6 +207,7 @@ const year = 2026;
         padding: 1.5rem 2rem;
         color: var(--color-text);
         background-color: var(--color-bg);
+        border-top: 1px solid var(--color-border);
       }
 
       .faq-content p:last-child { margin-bottom: 0; }
@@ -222,7 +223,7 @@ const year = 2026;
         border: 1px solid var(--color-border);
         color: var(--color-text);
         padding: 1.5rem;
-        padding-top: 2.5rem; /* Extra space for the button */
+        padding-top: 2.5rem;
         border-radius: 8px;
         overflow-x: auto;
         font-size: 0.9rem;
@@ -303,7 +304,7 @@ const year = 2026;
       <header>
         <div class="header-title-container">
           <a href="https://github.com/DanielMevit/Vecto" class="logo-link">
-            <img src="https://github.com/DanielMevit/Vecto/blob/main/assets/Vecto_Logo_1024x1024.png?raw=true" alt="Vecto logo" class="logo-img" />
+            <img src="https://raw.githubusercontent.com/DanielMevit/Vecto/main/assets/Vecto_Logo_1024x1024.png" alt="Vecto logo" class="logo-img" />
           </a>
           <h1>Vecto</h1>
         </div>
@@ -316,7 +317,7 @@ const year = 2026;
       </header>
 
       <section class="visual-comparison">
-        <img src="https://github.com/DanielMevit/Vecto/blob/main/assets/screenshot.png?raw=true" alt="Vecto application screenshot, showing a side-by-side comparison of a bitmap image and its traced vector counterpart, with a dark UI" />
+        <img src="https://raw.githubusercontent.com/DanielMevit/Vecto/main/assets/screenshot.png" alt="Vecto application screenshot, showing a side-by-side comparison of a bitmap image and its traced vector counterpart, with a dark UI" />
         <p class="visual-caption">Vecto features a live side-by-side comparison with synced zoom and pan.</p>
       </section>
 
@@ -458,7 +459,7 @@ vecto bench original.svg --scale 2</code></pre>
     </footer>
 
     <!-- Script to handle Copy to Clipboard -->
-    <script>
+    <script is:inline>
       document.querySelectorAll('.code-wrapper').forEach(wrapper => {
         const button = wrapper.querySelector('.copy-button');
         const code = wrapper.querySelector('code');
