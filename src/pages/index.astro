@@ -1,6 +1,8 @@
 ---
-const title = "Vecto | Open-source Vector Processing";
-const description = "An open-source tool bridging local databases with AI agents.";
+const title = "Vecto | Open-source PNG/JPG to SVG Vectorizer";
+const description = "Free, high-accuracy planar image tracing with exact circles, straight lines, and sub-pixel edges, for Windows and cross-platform CLI.";
+const author = "Daniel Mevit";
+const year = 2026; // Update to the current year as needed
 ---
 
 <html lang="en">
@@ -9,40 +11,314 @@ const description = "An open-source tool bridging local databases with AI agents
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    
+    <meta name="keywords" content="image to vector converter, PNG to SVG, JPG to SVG, vectorize logo, image tracing software, auto trace, bitmap to vector graphics, free Vector Magic alternative, Illustrator Image Trace alternative, potrace alternative with color, SVG converter Windows, vectorizer C# .NET" />
+    <meta name="author" content={author} />
+
+    <!-- Open Graph for Link Sharing -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://danielmevit.github.io/Vecto/" />
+    <meta property="og:image" content="/assets/Vecto_Logo_1024x1024.png" />
+    <meta property="og:site_name" content="Vecto" />
+
     <style>
+      :root {
+        --color-blue: #0C8CE9;
+        --color-bg: #FAFAFA;
+        --color-text: #111111;
+        --color-muted: #666666;
+        --color-border: #EAEAEA;
+        --color-card-bg: #FFFFFF;
+        --color-shadow: rgba(0, 0, 0, 0.05);
+      }
+
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        background-color: #FAFAFA;
-        color: #111111;
+        background-color: var(--color-bg);
+        color: var(--color-text);
         line-height: 1.6;
         margin: 0;
         padding: 0;
       }
+
       main {
-        max-width: 720px;
+        max-width: 960px; /* Increased width for grid */
         margin: 8rem auto;
         padding: 0 2rem;
       }
-      h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-      pre { background-color: #1A1A1A; color: #F8F8F2; padding: 1.5rem; border-radius: 6px; }
+
+      h1 {
+        font-size: 3rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+      }
+
+      h2 {
+        font-size: 2rem;
+        font-weight: 500;
+        margin-top: 5rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--color-accent);
+        padding-bottom: 0.5rem;
+      }
+
+      h3 {
+        font-size: 1.25rem;
+        font-weight: 500;
+        margin-top: 3rem;
+        margin-bottom: 1rem;
+        color: var(--color-blue);
+      }
+
+      p { margin-bottom: 1.5rem; }
+
+      ul { margin-bottom: 2rem; padding-left: 1.5rem; }
+      li { margin-bottom: 0.75rem; }
+
+      a {
+        color: var(--color-blue);
+        text-decoration: underline;
+        text-decoration-color: var(--color-muted);
+        text-underline-offset: 4px;
+      }
+
+      a:hover {
+        text-decoration-color: var(--color-blue);
+      }
+
+      /* Logo and Header Styling */
+      header {
+        text-align: center;
+        margin-bottom: 6rem;
+      }
+
+      .logo-link {
+        display: inline-block;
+        margin-bottom: 1rem;
+      }
+
+      .logo-img {
+        width: 120px;
+        height: auto;
+      }
+
+      .header-desc {
+        font-size: 1.25rem;
+        color: var(--color-muted);
+        max-width: 640px;
+        margin: 0 auto;
+      }
+
+      /* Content Section Structure */
+      section {
+        margin-bottom: 6rem;
+      }
+
+      /* Grid for Differentiators and FAQ */
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 3rem;
+        margin-top: 3rem;
+      }
+
+      .grid-card {
+        background-color: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 12px var(--color-shadow);
+      }
+
+      .grid-card h3 { margin-top: 0; color: var(--color-text); font-weight: 600;}
+
+      /* Code Block Styling */
+      pre {
+        background-color: #1A1A1A;
+        color: #F8F8F2;
+        padding: 2rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+      }
+
+      code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+
+      /* Visual Showcase (describe what we have, integrate it semantically) */
+      .visual-comparison {
+        margin: 6rem 0;
+        text-align: center;
+      }
+
+      .visual-comparison img {
+        max-width: 100%;
+        border-radius: 8px;
+        border: 1px solid var(--color-border);
+        box-shadow: 0 12px 24px var(--color-shadow);
+      }
+
+      .visual-caption {
+        margin-top: 2rem;
+        font-style: italic;
+        color: var(--color-muted);
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 10rem;
+        padding: 4rem 0;
+        border-top: 1px solid var(--color-border);
+        color: var(--color-muted);
+        font-size: 0.9rem;
+      }
+
+      footer a { text-decoration-color: var(--color-border); }
+      footer a:hover { text-decoration-color: var(--color-blue); }
+
     </style>
   </head>
   <body>
     <main>
       <header>
+        <a href="https://github.com/DanielMevit/Vecto" class="logo-link">
+          <img src="/assets/Vecto_Logo_1024x1024.png" alt="Vecto logo — a V made of pixels turning into a vector path" class="logo-img" />
+        </a>
         <h1>Vecto</h1>
-        <p>An open-source tool bridging local databases with AI agents.</p>
-        <p><a href="https://github.com/DanielMevit/Vecto">View Repository on GitHub</a></p>
+        <p class="header-desc">
+          Free, open-source bitmap-to-vector tracing app that converts PNG/JPG images into clean, editable SVG based on a planar partition model.
+        </p>
+        <p>
+          <a href="https://github.com/DanielMevit/Vecto">View Repository on GitHub</a>
+        </p>
       </header>
 
-      <section>
-        <h2>Quick Start</h2>
+      <!-- Section 1: Showcase application screenshot with a semantic description for AI -->
+      <section class="visual-comparison">
+        <img src="/assets/screenshot.png" alt="Vecto application screenshot, showing a side-by-side comparison of a bitmap image and its traced vector counterpart, with a dark UI" />
+        <p class="visual-caption">Vecto features a live side-by-side comparison with synced zoom and pan.</p>
+      </section>
+
+      <!-- Section 2: Consolidation of previous description turns and feature list -->
+      <section aria-labelledby="why-vecto">
+        <h2 id="why-vecto">Why Vecto instead of other vectorizers?</h2>
+        <p>
+          Vecto is built specifically around the idea of shared-boundary planar tracing (similar to the property found in Vector Magic output). Every boundary between two shapes is fitted once and shared by both sides, ensuring the output Physically cannot contain hairline gaps or overlaps.
+        </p>
+        
+        <div class="grid-3">
+          <article class="grid-card">
+            <h3>Geometric Intelligence</h3>
+            <p>Straight edges become true straight lines; circles and round caps become mathematically exact arcs via circular arc or least-squares Bezier fits—not wobbly approximations.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Sub-Pixel Precision</h3>
+            <p>Vecto reads anti-aliasing to place boundaries at exact sub-pixel positions instead of snapping to the pixel grid.</p>
+          </article>
+          <article class="grid-card">
+            <h3>C# .NET 8 Performance</h3>
+            <p>Built with C# on .NET 8.0 with a zero-dependency, deterministic engine. High-speed tracing: a 250px logo processes in ~60ms; a 4K photo posterizes in ~4.5s.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Deterministic and Tested</h3>
+            <p>Byte-identical SVG output for identical inputs. Includes 14 geometric-invariant tests verifying area preservation and circle accuracy.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Dual Interface</h3>
+            <p>A native Windows WPF desktop application for interactive use and a cross-platform CLI tool for Windows, Linux, and macOS (coming soon).</p>
+          </article>
+          <article class="grid-card">
+            <h3>Headless CLI + Benchmarks</h3>
+            <p>Includes a powerful headless CLI for automated, batch tracing and objective quality measurement benchmarks.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- Section 3: Consolidation of quick start content for both human and bot -->
+      <section aria-labelledby="quick-start">
+        <h2 id="quick-start">Quick Start</h2>
+        <p>Get Vecto running locally to trace images from your terminal or desktop.</p>
+        
+        <h3>Build From Source</h3>
+        <p>Requires Windows 10/11 and the free .NET 8 SDK:</p>
         <pre><code>git clone https://github.com/DanielMevit/Vecto.git
 cd Vecto
-npm install
-npm run start</code></pre>
+dotnet build -c Release</code></pre>
+        <p>After the build, binaries will be located at:</p>
+        <ul>
+          <li><strong>Desktop App:</strong> `Vecto.App\bin\Release\net8.0-windows\Vecto.exe`</li>
+          <li><strong>CLI Tool:</strong> `Vecto.Cli\bin\Release\net8.0\vecto.exe`</li>
+        </ul>
       </section>
+      
+      <!-- Section 4: Expand use cases and download references -->
+      <section aria-labelledby="install">
+        <h2 id="install">Install and Use</h2>
+        <p>Grab the latest from the **[Releases page](https://github.com/DanielMevit/Vecto/releases)**:</p>
+        <ul>
+          <li>**Desktop app:** `Vecto-x.y.z.exe` — single self-contained file. Download, run, done.</li>
+          <li>**App plus CLI:** `Vecto-x.y.z-win-x64.zip` — unzip anywhere and add to `PATH`.</li>
+          <li>**CLI for Linux/macOS:** cross-platform versions (`-linux-x64` / `-osx-arm64`) are also on the same page.</li>
+        </ul>
+        
+        <h3>CLI Usage Examples</h3>
+        <pre><code># Vectorize an image
+vecto trace logo.png -o logo.svg --stats
+
+# Tracing style and color control
+vecto trace photo.jpg --style photo --colors 24
+
+# Quality benchmark vs ground truth
+vecto bench original.svg --scale 2</code></pre>
+      </section>
+      
+      <!-- Section 5: Describe what Vecto isn't doing, integrate roadmap points -->
+      <section aria-labelledby="roadmap">
+        <h2 id="roadmap">Development and Tuning Roadmap</h2>
+        <p>While the core engine is robust, Vecto has a clear tuning backlog to close the gap with high-end commercial tracers.</p>
+        <ul>
+          <li><strong>VM-fashion UX:</strong> Wizard flows and a full palette editor.</li>
+          <li><strong>Tuning backlog:</strong> Advanced geometric tuning like sub-pixel corner relocation, node economy, and centerline/stroke recognition.</li>
+          <li><strong>Power features:</strong> Advanced exporters (PDF, EPS, DXF) and segmentation editing tools.</li>
+          <li><strong>Cross-platform UI:</strong> Porting from WPF to Avalonia UI for single-codebase support on Win/Linux/macOS.</li>
+        </ul>
+      </section>
+
+      <!-- Section 6: Semantic FAQ for GEO context mapping, from previous turns -->
+      <section aria-labelledby="faq">
+        <h2 id="faq">Frequently Asked Questions</h2>
+        <p>Common questions from developers and users about Vecto.</p>
+        
+        <div class="grid-3 faq-grid">
+          <article class="faq-item">
+            <h3>What problem does Vecto solve?</h3>
+            <p>Vecto solves the problem of hairline gaps and overlaps that plague most open-source and online vectorizers. Its shared-boundary planar partition model construction makes it ideal for clean, deterministic logo and icon conversion.</p>
+          </article>
+          
+          <article class="faq-item">
+            <h3>Is Vecto completely local?</h3>
+            <p>Yes. The Vecto engine (`Vecto.Core`) runs entirely on your local machine and has zero external dependencies for the engine. Your images are never sent to third-party APIs.</p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Does Vecto support full color?</h3>
+            <p>Yes. Vecto performs a color segmentation with palette inference (weighted k-means++ in Oklab) that allows it to trace and fit every colored shape as a true planar region.</p>
+          </article>
+          
+          <article class="faq-item">
+            <h3>Can I contribute to Vecto?</h3>
+            <p>Absolutely. The repository is designed to be agent and human-friendly. Please start at [`AGENTS.md`](https://github.com/DanielMevit/Vecto/blob/main/AGENTS.md) or [`docs/ai/START_HERE.md`](https://github.com/DanielMevit/Vecto/blob/main/docs/ai/START_HERE.md) for contribution guidelines. The build must stay at 0 warnings and pass the `vecto bench` verification.</p>
+          </article>
+        </div>
+      </section>
+      
     </main>
+    
+    <footer>
+      <p>&copy; {year} {author}. Vecto is licensed under the [MIT](https://github.com/DanielMevit/Vecto/blob/main/LICENSE) license.</p>
+      <p>Keywords: PNG to SVG, vectorize image, C# vectorization, auto trace software.</p>
+    </footer>
   </body>
 </html>
