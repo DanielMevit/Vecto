@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Engine: sub-pixel corner relocation + angle snapping
+- Validated corners no longer stay pinned to the pixel lattice: each moves to the
+  intersection of least-squares lines fitted to its refined flanks (`RelocateCorners`).
+  Straight sides fit one shared line from both ends, flank directions within 1° of a
+  45° multiple snap exactly, and the AA-contaminated shoulder vertices are projected
+  onto the flank lines — so axis-aligned and diagonal sides come out *mathematically*
+  straight at the sub-pixel position the anti-aliasing encodes. Junctions stay pinned
+  (multi-chain solve still on the roadmap).
+- New test: an AA box with sub-pixel borders must trace to exactly 4 lines, exactly
+  horizontal/vertical, at the true edge positions. Bench (4 ground-truth files):
+  meanΔE −1…−7%, big-error tail (>0.1) −4…−10%, nodes flat to −4%.
+- Found + documented in ROADMAP: chamfered-AA corners (ambiguous ~50% border pixels)
+  escape k=3 corner detection entirely — a separate detection-side lever.
+
 ### Quick wins (app + CLI)
 - **App: PNG export** — Export PNG… renders the traced vector through the Core
   Rasterizer (1×, supersampled) and saves via the WPF PNG encoder.

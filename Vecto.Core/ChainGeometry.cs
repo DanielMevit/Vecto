@@ -215,6 +215,118 @@ internal static class ChainGeometry
         return (sr, sg, sb, sa / 255.0);
     }
 
+    /// <summary>
+    /// Sub-pixel corner relocation: each surviving corner moves from its lattice pin to the
+    /// intersection of the two flank lines fitted to the refined geometry on either side.
+    /// Flank directions within <paramref name="snapDeg"/> of a 45° multiple snap exactly —
+    /// and both corners of a shared straight side fit the identical line, so snapped sides
+    /// come out mathematically straight. Chain-local, so planarity holds. Junctions (chain
+    /// endpoints) stay pinned: consistent relocation there needs a multi-chain solve (ROADMAP).
+    /// </summary>
+    public static void RelocateCorners(List<Vec2> pts, bool closed, IReadOnlyList<int> corners, double maxShift, double snapDeg)
+    {
+        int n = closed ? pts.Count - 1 : pts.Count;
+        if (n < 7 || corners.Count == 0) return;
+        var pins = new SortedSet<int>(corners);
+        if (!closed)
+        {
+            pins.Add(0);
+            pins.Add(n - 1);
+        }
+
+        var moved = new List<(int Index, Vec2 P)>(corners.Count);
+        foreach (var c in corners)
+        {
+            var left = FlankLine(c, -1);
+            var right = FlankLine(c, +1);
+            if (left is not { } l || right is not { } r) continue;
+            double cross = l.Dir.X * r.Dir.Y - l.Dir.Y * r.Dir.X;
+            if (Math.Abs(cross) < 0.2) continue;   // near-parallel flanks — not a trustworthy corner
+            double t = ((r.Pt.X - l.Pt.X) * r.Dir.Y - (r.Pt.Y - l.Pt.Y) * r.Dir.X) / cross;
+            var q = new Vec2(l.Pt.X + l.Dir.X * t, l.Pt.Y + l.Dir.Y * t);
+            if (q.DistSq(pts[c]) > maxShift * maxShift) continue;   // implausible jump — keep the pin
+            moved.Add((c, q));
+            // the shoulders' own 50%-crossings are bent by the transverse edge's AA this
+            // close to a corner — project them onto the flank lines they were excluded from
+            Shoulder(c, -1, l);
+            Shoulder(c, +1, r);
+        }
+        foreach (var (i, p) in moved) pts[i] = p;
+        if (closed) pts[n] = pts[0];
+
+        void Shoulder(int c, int dir, (Vec2 Pt, Vec2 Dir) line)
+        {
+            int j = c + dir;
+            int w = closed ? ((j % n) + n) % n : j;
+            if (w < 0 || w >= n || pins.Contains(w)) return;
+            var p = pts[w];
+            var proj = line.Pt + line.Dir * (p - line.Pt).Dot(line.Dir);
+            if (proj.DistSq(p) <= maxShift * maxShift) moved.Add((w, proj));
+        }
+
+        (Vec2 Pt, Vec2 Dir)? FlankLine(int c, int dir)
+        {
+            // the run from this corner to the next pin, excluding both pins and one vertex
+            // beside each (the smoothing-damped, AA-contaminated shoulders)
+            var idx = new List<int>();
+            for (int steps = 1; steps <= n; steps++)
+            {
+                int j = c + dir * steps;
+                int w = closed ? ((j % n) + n) % n : j;
+                if (w < 0 || w >= n) break;
+                if (pins.Contains(w)) break;
+                idx.Add(w);
+            }
+            if (idx.Count >= 2) idx.RemoveAt(0);
+            if (idx.Count >= 2) idx.RemoveAt(idx.Count - 1);
+            if (idx.Count < 2) return null;
+
+            // straight run → fit every vertex (both corners of the side then share one line);
+            // curved run → only the four vertices nearest the corner
+            var a = pts[idx[0]];
+            var b = pts[idx[^1]];
+            var chord = b - a;
+            double len2 = chord.LengthSq;
+            bool straight = true;
+            if (len2 > 1e-12)
+            {
+                foreach (var w in idx)
+                {
+                    double tt = Math.Clamp((pts[w] - a).Dot(chord) / len2, 0, 1);
+                    if (pts[w].DistSq(a + chord * tt) > 0.16)   // 0.4 px
+                    {
+                        straight = false;
+                        break;
+                    }
+                }
+            }
+            if (!straight && idx.Count > 4) idx.RemoveRange(4, idx.Count - 4);
+
+            double mx = 0, my = 0;
+            foreach (var w in idx)
+            {
+                mx += pts[w].X;
+                my += pts[w].Y;
+            }
+            mx /= idx.Count;
+            my /= idx.Count;
+            double cxx = 0, cxy = 0, cyy = 0;
+            foreach (var w in idx)
+            {
+                double dx = pts[w].X - mx, dy = pts[w].Y - my;
+                cxx += dx * dx;
+                cxy += dx * dy;
+                cyy += dy * dy;
+            }
+            if (cxx + cyy < 1e-12) return null;
+            double theta = 0.5 * Math.Atan2(2 * cxy, cxx - cyy);
+            double deg = theta * (180.0 / Math.PI);
+            double snapped = Math.Round(deg / 45.0) * 45.0;
+            if (Math.Abs(deg - snapped) <= snapDeg) theta = snapped * (Math.PI / 180.0);
+            return (new Vec2(mx, my), new Vec2(Math.Cos(theta), Math.Sin(theta)));
+        }
+    }
+
     /// <summary>Douglas–Peucker with distance-to-segment (handles closed chains where first == last).</summary>
     public static List<Vec2> SimplifyDp(List<Vec2> pts, double epsilon)
     {

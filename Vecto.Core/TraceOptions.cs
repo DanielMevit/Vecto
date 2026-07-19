@@ -48,6 +48,8 @@ public sealed class EffectiveParams
     public double CornerThresholdDeg;
     public int CornerSupport;         // vertices on each side used to measure the turn angle
     public double SubpixelMaxShift;   // px; cap on normal-direction edge refinement
+    public double CornerRelocateMaxShift; // px; a corner may leave its lattice pin by at most this
+    public double AngleSnapDeg;       // flank directions this close to a 45° multiple snap exactly
     public double FitToleranceSq;     // px²
     public double PolygonEpsilon;
     public int Seed;

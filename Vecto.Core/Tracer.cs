@@ -110,6 +110,10 @@ public static class Tracer
                         corners = kept;
                         Process(corners);
                     }
+                    // pinned lattice corners tilt their adjacent lines by up to ~0.5 px;
+                    // move each to the intersection of its refined flank lines instead
+                    ChainGeometry.RelocateCorners(chain.Points, chain.Closed, corners,
+                        p.CornerRelocateMaxShift, p.AngleSnapDeg);
                 }
                 chain.Curve = BezierFitter.FitChain(chain.Points, chain.Closed, corners, p.FitToleranceSq);
 
@@ -275,6 +279,8 @@ public static class Tracer
             CornerThresholdDeg = 68,
             CornerSupport = 3,
             SubpixelMaxShift = style == ImageStyle.Crisp ? 0.35 : 0.75,
+            CornerRelocateMaxShift = 1.0,
+            AngleSnapDeg = 1.0,
             FitToleranceSq = o.Detail switch { DetailLevel.Low => 1.0, DetailLevel.High => 0.09, _ => 0.25 },
             PolygonEpsilon = o.PolygonEpsilon >= 0 ? o.PolygonEpsilon
                 : o.Detail switch { DetailLevel.Low => 1.6, DetailLevel.High => 0.4, _ => 0.8 },

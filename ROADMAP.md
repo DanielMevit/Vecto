@@ -42,10 +42,13 @@
   mean ΔE −40% across the ground-truth bench)
 - ~~Line/arc primitive recognition~~ **done 2026-07-08** (`TryLine`/`TryArc` in the
   fitter: straight edges → single lines, circles/caps → exact arcs; band test enforces it)
-- **Sub-pixel corner/junction relocation** — now the top quality lever: pinned lattice
-  endpoints tilt accepted lines by up to ~0.5 px and diff hotspots concentrate at cusps.
-  Junctions need a consistent multi-chain solve; corners are chain-local and easy.
-- Angle snapping for lines (0°/45°/90° within ~1°) — cheap once endpoints can move
+- ~~Sub-pixel **corner** relocation + angle snapping~~ **done 2026-07-19** (flank-line
+  intersection with exact 45°-multiple snap; bench meanΔE −1…−7%, >0.1 tail −4…−10%).
+  **Junction relocation remains** — chain endpoints still pin to the lattice; needs a
+  consistent multi-chain solve (all chains meeting at the junction must agree).
+- Chamfered-AA corner detection: a 90° corner whose ~50%-coverage border pixels label
+  ambiguously gets chamfered in the raster, and k=3/68° detection misses it → the corner
+  rounds. Needs re-detection on refined geometry or multi-scale support (found 2026-07-19).
 - Node economy: ~1.4–1.8× Vector Magic's counts at equal detail — smarter tangent
   estimation or two-pass fitting could close the rest
 - Centerline/stroke recognition (constant-width shapes → path + stroke weight + round

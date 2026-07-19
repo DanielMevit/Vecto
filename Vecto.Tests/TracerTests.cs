@@ -171,6 +171,42 @@ public class TracerTests
     }
 
     [Fact]
+    public void AaBox_EdgesSnapToExactAxisLines_AtSubpixelPositions()
+    {
+        // axis-aligned box with sub-pixel borders (x 12.25–47.75, y 15.75–44.25), anti-aliased:
+        // corner relocation + angle snap must yield exactly horizontal/vertical single lines
+        // at the positions the AA encodes — not lattice-snapped, not tilted
+        var img = Make(60, 60, (x, y) =>
+        {
+            double px = x + 0.5, py = y + 0.5;
+            double cov = Math.Clamp(Math.Min(px - 12.25, 47.75 - px) + 0.5, 0, 1)
+                       * Math.Clamp(Math.Min(py - 15.75, 44.25 - py) + 0.5, 0, 1);
+            byte Mix(byte a, byte b) => (byte)Math.Round(a + (b - a) * cov);
+            return new Rgba32(Mix(White.R, Red.R), Mix(White.G, Red.G), Mix(White.B, Red.B), 255);
+        });
+        // fixed 2-color palette: this test is about corner geometry, not palette inference
+        var opt = new TraceOptions { PaletteMode = PaletteMode.FixedCount, ColorCount = 2 };
+        var doc = Tracer.Trace(img, opt).Document;
+        var box = doc.Regions.Single(r => doc.Palette[r.PaletteIndex].Color.G < 128);
+        var loop = Assert.Single(box.Loops);
+        var lines = loop.Where(s => s.IsLine(0.05) && (s.P3 - s.P0).Length > 20).ToList();
+        Assert.Equal(4, lines.Count);
+        foreach (var line in lines)
+        {
+            bool horizontal = Math.Abs(line.P3.Y - line.P0.Y) < 1e-6;
+            bool vertical = Math.Abs(line.P3.X - line.P0.X) < 1e-6;
+            Assert.True(horizontal || vertical,
+                $"line ({line.P0.X:0.###},{line.P0.Y:0.###})->({line.P3.X:0.###},{line.P3.Y:0.###}) is neither exactly horizontal nor vertical");
+            if (horizontal)
+                Assert.True(Math.Abs(line.P0.Y - 15.75) < 0.2 || Math.Abs(line.P0.Y - 44.25) < 0.2,
+                    $"horizontal edge at y={line.P0.Y:0.###} is not at a true edge position");
+            else
+                Assert.True(Math.Abs(line.P0.X - 12.25) < 0.2 || Math.Abs(line.P0.X - 47.75) < 0.2,
+                    $"vertical edge at x={line.P0.X:0.###} is not at a true edge position");
+        }
+    }
+
+    [Fact]
     public void TransparentBackground_OnlyOpaqueShapesEmitted()
     {
         var res = Tracer.Trace(SampleGen.Transparent(), Polygons());
