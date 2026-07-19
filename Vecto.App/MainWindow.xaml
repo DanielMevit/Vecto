@@ -17,12 +17,14 @@
                     <Button Content="Paste" Click="OnPaste" Margin="0,0,16,0"/>
                     <Button Content="Export SVG…" Click="OnExport" IsEnabled="{Binding HasResult}"
                             Style="{StaticResource AccentButton}" Margin="0,0,6,0"/>
-                    <Button Content="Copy SVG" Click="OnCopySvg" IsEnabled="{Binding HasResult}"/>
+                    <Button Content="Copy SVG" Click="OnCopySvg" IsEnabled="{Binding HasResult}" Margin="0,0,6,0"/>
+                    <Button Content="Export PNG…" Click="OnExportPng" IsEnabled="{Binding HasResult}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                     <ComboBox SelectedIndex="{Binding RightMode}" Width="128" Margin="0,0,16,0" VerticalAlignment="Center">
                         <ComboBoxItem Content="Vector"/>
                         <ComboBoxItem Content="Segmentation"/>
+                        <ComboBoxItem Content="Nodes"/>
                     </ComboBox>
                     <Button Content="−" Click="OnZoomOut" Width="28" Padding="0,5"/>
                     <TextBlock Text="{Binding ZoomText}" VerticalAlignment="Center" MinWidth="48"

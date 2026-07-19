@@ -5,9 +5,12 @@
 boundary is fitted once and shared by both adjacent regions, so the output has no gaps and
 no overlaps between shapes. C# / .NET 8 / WPF.
 
-**Current status:** v0.1.0 — Phases 0–3 done (engine + CLI + tests + WPF app MVP).
-**Current priority:** (1) sub-pixel junction/corner relaxation — top engine-quality lever, see ROADMAP; (2) Phase 4 UX: palette editor + tracing wizard; (3) publish a binary GitHub Release + demo GIF for reach.
-removal; plus tuning-backlog items as they bite.
+**Current status:** v0.4.1 public on GitHub Releases (engine + CLI + app + dark theme);
+product site live at https://danielmevit.github.io/vecto/ (`site/`, deploys from `main`).
+**Current priority:** (1) sub-pixel junction/corner relaxation — top engine-quality lever,
+see ROADMAP; (2) Phase 4 UX: palette editor + tracing wizard; (3) distribution: first
+Microsoft Store publish (crib Laydown's AppxManifest/certs) + winget + demo GIF; plus
+tuning-backlog items as they bite.
 
 ## Solution layout (structure beyond this → CodeGraph)
 - `Vecto.Core` — the engine, zero dependencies. Pipeline lives in `Tracer.Trace`.

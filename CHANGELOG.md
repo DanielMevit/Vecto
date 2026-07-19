@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Quick wins (app + CLI)
+- **App: PNG export** — Export PNG… renders the traced vector through the Core
+  Rasterizer (1×, supersampled) and saves via the WPF PNG encoder.
+- **App: Nodes view** — third right-pane mode drawing every path outline plus node
+  markers, sized in screen pixels (rebuilt on zoom, clipped to canvas); markers skip
+  above 20k nodes to stay responsive.
+- **App: settings persistence** — last-used palette/style/detail and window size/state
+  restored from `%APPDATA%\Vecto\settings.json`; corrupt/missing files fall back to
+  defaults silently.
+- **CLI: batch tracing** — `vecto trace` takes multiple inputs and self-expanded
+  wildcards (`vecto trace *.png --out-dir out`); `-o`/`--seg-png` stay single-input;
+  `--check` failures accumulate to exit 2. `--version` now reports the real assembly
+  version (was hardcoded 0.1.0).
+- Docs: START_HERE status/priority de-drifted (still said v0.1.0); ROADMAP gains a
+  Distribution section (Store/winget/signing).
+
 ### Product website (site/)
 - Astro landing page + changelog at https://danielmevit.github.io/vecto/ — mirrors the
   Eqho/Laydown site playbook (data-driven sections, version read from

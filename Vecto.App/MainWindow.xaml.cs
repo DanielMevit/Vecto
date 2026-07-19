@@ -4,20 +4,44 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using Vecto.Core;
 
 namespace Vecto.App;
 
 public partial class MainWindow : Window
 {
     public MainViewModel ViewModel { get; } = new();
+    readonly AppSettings _settings;
     bool _syncingScroll;
 
     public MainWindow()
     {
         InitializeComponent();
         DataContext = ViewModel;
+        _settings = AppSettings.Load();
+        Width = _settings.WindowWidth;
+        Height = _settings.WindowHeight;
+        if (_settings.WindowMaximized) WindowState = WindowState.Maximized;
+        ViewModel.AutoColors = _settings.AutoColors;
+        ViewModel.ColorCount = _settings.ColorCount;
+        ViewModel.StyleIndex = _settings.StyleIndex;
+        ViewModel.DetailIndex = _settings.DetailIndex;
         ViewModel.FitRequested += () =>
             Dispatcher.BeginInvoke(FitZoom, System.Windows.Threading.DispatcherPriority.Loaded);
+        Closing += (_, _) =>
+        {
+            _settings.AutoColors = ViewModel.AutoColors;
+            _settings.ColorCount = (int)ViewModel.ColorCount;
+            _settings.StyleIndex = ViewModel.StyleIndex;
+            _settings.DetailIndex = ViewModel.DetailIndex;
+            _settings.WindowMaximized = WindowState == WindowState.Maximized;
+            if (WindowState == WindowState.Normal)
+            {
+                _settings.WindowWidth = ActualWidth;
+                _settings.WindowHeight = ActualHeight;
+            }
+            _settings.Save();
+        };
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -97,6 +121,23 @@ public partial class MainWindow : Window
         var dlg = new SaveFileDialog { Filter = "SVG|*.svg", FileName = ViewModel.SuggestedName };
         if (dlg.ShowDialog(this) != true) return;
         File.WriteAllText(dlg.FileName, ViewModel.BuildSvg());
+        ViewModel.Status = "Exported " + dlg.FileName;
+    }
+
+    void OnExportPng(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.Document is not { } doc) return;
+        var dlg = new SaveFileDialog
+        {
+            Filter = "PNG|*.png",
+            FileName = Path.ChangeExtension(ViewModel.SuggestedName, ".png"),
+        };
+        if (dlg.ShowDialog(this) != true) return;
+        var bmp = VectorRendering.ToBitmapSource(Rasterizer.Render(doc));
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(bmp));
+        using (var stream = File.Create(dlg.FileName))
+            encoder.Save(stream);
         ViewModel.Status = "Exported " + dlg.FileName;
     }
 

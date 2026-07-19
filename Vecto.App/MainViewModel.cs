@@ -59,14 +59,33 @@ public sealed class MainViewModel : INotifyPropertyChanged
         private set { _segmentationBitmap = value; Raise(); Raise(nameof(RightSource)); }
     }
 
-    int _rightMode;   // 0 = vector result, 1 = segmentation
+    int _rightMode;   // 0 = vector result, 1 = segmentation, 2 = nodes/wireframe
     public int RightMode
     {
         get => _rightMode;
-        set { _rightMode = value; Raise(); Raise(nameof(RightSource)); }
+        set
+        {
+            _rightMode = value;
+            if (value == 2) RefreshWireframe();
+            Raise();
+            Raise(nameof(RightSource));
+        }
     }
 
-    public ImageSource? RightSource => _rightMode == 1 ? _segmentationBitmap : _vectorImage;
+    ImageSource? _wireframeImage;
+    void RefreshWireframe()
+    {
+        if (_result == null) return;
+        _wireframeImage = VectorRendering.ToWireframeImage(_result.Document, _zoom);
+        Raise(nameof(RightSource));
+    }
+
+    public ImageSource? RightSource => _rightMode switch
+    {
+        1 => _segmentationBitmap,
+        2 => _wireframeImage,
+        _ => _vectorImage,
+    };
 
     public bool HasImage => _sourceBitmap != null;
     public bool HasResult => _result != null;
@@ -75,7 +94,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public double Zoom
     {
         get => _zoom;
-        set { _zoom = Math.Clamp(value, 0.05, 64); Raise(); Raise(nameof(ZoomText)); }
+        set
+        {
+            _zoom = Math.Clamp(value, 0.05, 64);
+            Raise();
+            Raise(nameof(ZoomText));
+            if (_rightMode == 2) RefreshWireframe();   // stroke/marker sizes are zoom-relative
+        }
     }
     public string ZoomText => _zoom.ToString("P0");
 
@@ -140,6 +165,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     public string SuggestedName => Path.GetFileNameWithoutExtension(_sourcePath ?? "vecto") + ".svg";
 
+    public VectorDocument? Document => _result?.Document;
+
     public string WindowTitle => _sourcePath == null ? "Vecto" : $"Vecto — {Path.GetFileName(_sourcePath)}";
 
     public void LoadPastedBitmap(BitmapSource bmp)
@@ -202,6 +229,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
             _result = result;
             VectorImage = VectorRendering.ToDrawingImage(result.Document);
             SegmentationBitmap = VectorRendering.ToSegmentationBitmap(result);
+            _wireframeImage = null;
+            if (_rightMode == 2) RefreshWireframe();
             Swatches = result.Document.Palette.Select(p =>
             {
                 var brush = new SolidColorBrush(Color.FromRgb(p.Color.R, p.Color.G, p.Color.B));

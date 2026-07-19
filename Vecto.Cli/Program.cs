@@ -27,7 +27,11 @@ internal static class Program
         }
         if (args[0] == "--version")
         {
-            Console.WriteLine("vecto 0.1.0");
+            var info = (System.Reflection.AssemblyInformationalVersionAttribute?)Attribute.GetCustomAttribute(
+                typeof(Program).Assembly, typeof(System.Reflection.AssemblyInformationalVersionAttribute));
+            var ver = info?.InformationalVersion ?? typeof(Program).Assembly.GetName().Version?.ToString() ?? "?";
+            int plus = ver.IndexOf('+');   // strip build metadata (+commit)
+            Console.WriteLine("vecto " + (plus >= 0 ? ver[..plus] : ver));
             return 0;
         }
         return args[0] switch
@@ -36,7 +40,7 @@ internal static class Program
             "samples" => Samples(args[1..]),
             "render" => Render(args[1..]),
             "bench" => Bench(args[1..]),
-            _ when File.Exists(args[0]) => Trace(args),
+            _ when File.Exists(args[0]) || args[0].Contains('*') || args[0].Contains('?') => Trace(args),
             _ => UnknownCommand(args[0]),
         };
     }
@@ -49,7 +53,8 @@ internal static class Program
 
     static int Trace(string[] args)
     {
-        string? input = null, output = null, segPng = null;
+        var inputs = new List<string>();
+        string? output = null, outDir = null, segPng = null;
         var opt = new TraceOptions();
         bool check = false, stats = false;
         for (int i = 0; i < args.Length; i++)
@@ -59,6 +64,9 @@ internal static class Program
             {
                 case "-o" or "--out":
                     output = Next(args, ref i);
+                    break;
+                case "--out-dir":
+                    outDir = Next(args, ref i);
                     break;
                 case "--colors":
                     var v = Next(args, ref i);
@@ -101,27 +109,45 @@ internal static class Program
                     break;
                 default:
                     if (a.StartsWith('-')) throw new ArgumentException("unknown option " + a);
-                    if (input != null) throw new ArgumentException("more than one input given");
-                    input = a;
+                    inputs.AddRange(Expand(a));
                     break;
             }
         }
-        if (input == null) throw new ArgumentException("no input image given (see: vecto --help)");
-        output ??= Path.ChangeExtension(input, ".svg");
+        if (inputs.Count == 0) throw new ArgumentException("no input image given (see: vecto --help)");
+        if (inputs.Count > 1 && output != null) throw new ArgumentException("-o is for a single input; use --out-dir for batches");
+        if (inputs.Count > 1 && segPng != null) throw new ArgumentException("--seg-png is for a single input");
+        if (outDir != null) Directory.CreateDirectory(outDir);
 
-        var img = ImageIo.Load(input);
-        var res = Tracer.Trace(img, opt);
-        File.WriteAllText(output, SvgWriter.Write(res.Document));
-        Console.WriteLine(FormattableString.Invariant(
-            $"{Path.GetFileName(input)} -> {output}  ({res.Diagnostics.TotalMs} ms, {res.Document.Palette.Count} colors, {res.Diagnostics.RegionCount} regions, {res.Diagnostics.NodeCount} nodes)"));
-        if (segPng != null)
+        bool allPlanar = true;
+        foreach (var input in inputs)
         {
-            ImageIo.SavePng(SegmentationImage(res), segPng);
-            Console.WriteLine("segmentation -> " + segPng);
+            var outPath = output ?? Path.ChangeExtension(
+                outDir == null ? input : Path.Combine(outDir, Path.GetFileName(input)), ".svg");
+            var img = ImageIo.Load(input);
+            var res = Tracer.Trace(img, opt);
+            File.WriteAllText(outPath, SvgWriter.Write(res.Document));
+            Console.WriteLine(FormattableString.Invariant(
+                $"{Path.GetFileName(input)} -> {outPath}  ({res.Diagnostics.TotalMs} ms, {res.Document.Palette.Count} colors, {res.Diagnostics.RegionCount} regions, {res.Diagnostics.NodeCount} nodes)"));
+            if (segPng != null)
+            {
+                ImageIo.SavePng(SegmentationImage(res), segPng);
+                Console.WriteLine("segmentation -> " + segPng);
+            }
+            if (stats) PrintStats(res);
+            if (check && !PlanarityCheck(res)) allPlanar = false;
         }
-        if (stats) PrintStats(res);
-        if (check && !PlanarityCheck(res)) return 2;
-        return 0;
+        return allPlanar ? 0 : 2;
+    }
+
+    /// <summary>Wildcards are expanded here, not by the shell — cmd/PowerShell pass them through verbatim.</summary>
+    static IEnumerable<string> Expand(string pattern)
+    {
+        if (!pattern.Contains('*') && !pattern.Contains('?')) return [pattern];
+        var dir = Path.GetDirectoryName(pattern);
+        var matches = Directory.GetFiles(string.IsNullOrEmpty(dir) ? "." : dir, Path.GetFileName(pattern))
+            .OrderBy(f => f, StringComparer.Ordinal).ToArray();
+        if (matches.Length == 0) throw new ArgumentException("no files match " + pattern);
+        return matches;
     }
 
     static int Render(string[] args)
@@ -321,7 +347,8 @@ internal static class Program
             vecto — bitmap-to-vector tracer (Vector Magic-style planar output)
 
             usage:
-              vecto trace <image> [options]     vectorize an image (also: vecto <image>)
+              vecto trace <images...> [options]  vectorize images (also: vecto <image>);
+                                                wildcards ok: vecto trace *.png --out-dir out
               vecto samples [dir]               write procedural test images
               vecto render <svg> [-o png] [--scale s]
                                                 rasterize an SVG (M/L/H/V/C/Z paths)
@@ -330,7 +357,8 @@ internal static class Program
                                                 original vector, trace it, diff the result
 
             options:
-              -o, --out <file>      output SVG path (default: input with .svg)
+              -o, --out <file>      output SVG path, single input only (default: input with .svg)
+              --out-dir <dir>       output directory for batches (default: next to each input)
               --colors <n|auto>     fixed palette size, or automatic (default auto)
               --max-colors <n>      cap for automatic palette (default 16)
               --detail <level>      low | medium | high (default medium)
