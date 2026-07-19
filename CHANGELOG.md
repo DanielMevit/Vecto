@@ -1,6 +1,6 @@
 # Changelog — Vecto
 
-## Unreleased
+## v0.4.2 — 2026-07-19
 
 ### Engine: sub-pixel corner relocation + angle snapping
 - Validated corners no longer stay pinned to the pixel lattice: each moves to the
