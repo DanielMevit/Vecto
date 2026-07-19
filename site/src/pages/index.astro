@@ -1,0 +1,562 @@
+---
+import fs from "node:fs";
+
+// The version has one home: Directory.Build.props. Read it at build time rather
+// than restate it here, or the site will eventually advertise a version that isn't
+// the one on the releases page.
+const props = fs.readFileSync(
+  new URL("../../../Directory.Build.props", import.meta.url),
+  "utf8",
+);
+const match = props.match(/<Version>([^<]+)<\/Version>/);
+if (!match) throw new Error("Could not read <Version> from Directory.Build.props");
+const version = match[1];
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const title = "Vecto — free PNG to SVG converter. Images into clean vectors.";
+const description =
+  "Free, open-source image-to-vector converter. Trace PNG and JPG images — logos, icons, illustrations, scans — into clean, editable SVG with exact circles, true straight lines, and zero gaps between shapes. Runs on your machine, nothing uploaded.";
+const author = "Daniel Mevit";
+const repo = "https://github.com/danielmevit/vecto";
+const releases = `${repo}/releases`;
+const latest = `${repo}/releases/latest`;
+const year = 2026;
+
+const features = [
+  {
+    title: "No gaps. No overlaps. Ever.",
+    body: "Vecto treats your image as one connected mosaic: every boundary between two shapes is fitted once and shared by both sides. The hairline cracks other converters leave between colors are structurally impossible — print it, cut it, scale it to a billboard.",
+  },
+  {
+    title: "Real lines, real circles",
+    body: "Straight edges come out as truly straight lines. Circles, dots and rounded caps come out as mathematically exact arcs — not wobbly 40-point approximations. Logos and icons keep the geometry they were designed with.",
+  },
+  {
+    title: "Sharper than the pixels",
+    body: "Anti-aliasing encodes where the real edge sits between pixels. Vecto reads it and places every boundary at sub-pixel precision instead of snapping to the pixel grid.",
+  },
+  {
+    title: "Private by design",
+    body: "Everything runs on your computer — nothing is uploaded, no account exists, and it works offline. Client logos and unreleased artwork never leave your machine.",
+  },
+  {
+    title: "Fast enough to tune by eye",
+    body: "A logo traces in a blink; even a 4K photo takes seconds. Every setting change re-traces live in a side-by-side view, so you adjust by looking, not by trial-and-export.",
+  },
+  {
+    title: "Free, with no catch",
+    body: "MIT-licensed open source. No trial, no watermark, no “pro” tier holding the good output hostage. Anyone can read the code and verify every claim on this page.",
+  },
+];
+
+const faqs = [
+  {
+    q: "Is it really free? What's the catch?",
+    a: "No catch. Vecto is open source under the MIT license — no trial clock, no watermark, no premium tier. The full engine is in the free download, and the code is public on GitHub.",
+  },
+  {
+    q: "Is my artwork uploaded anywhere?",
+    a: "Never. Vecto is a desktop app — tracing runs entirely on your computer and works with the network cable unplugged.",
+  },
+  {
+    q: "How is this different from Inkscape's or potrace's tracing?",
+    a: "Potrace-style tracers vectorize each color as a separate stacked layer, which leaves hairline gaps and overlaps where colors meet. Vecto traces the image as one connected mosaic — every boundary is computed once and shared by both neighboring shapes, so gaps can't exist. It also recognizes straight lines and circles and emits them as exact geometry.",
+  },
+  {
+    q: "Does it work on photos?",
+    a: "Yes, in a stylized way — photos become posterized vector art with a chosen number of colors (there's a dedicated photo style). For logos, icons and illustrations the trace aims to be faithful. One tip for everything: feed the highest-resolution image you have — quality scales with input size.",
+  },
+  {
+    q: "Can I use it on Linux or macOS?",
+    a: "The full tracing engine ships as the vecto command-line tool for Linux and macOS — trace, batch and benchmark from any terminal. The graphical app is Windows-only today; a cross-platform version is on the roadmap.",
+  },
+  {
+    q: "What do I do with an SVG?",
+    a: "Open or paste it in Figma, Adobe Illustrator, Inkscape or Affinity and edit every shape. Send it to a laser cutter or cutting plotter. Put it on a website. Print it at any size — business card to billboard — with no loss of sharpness.",
+  },
+];
+
+const cmp = [
+  { k: "Price", v: "Free, MIT", p: "Free", i: "Subscription", m: "Paid" },
+  { k: "Full color", v: "✅", p: "⚠️ layer stacking", i: "✅", m: "✅" },
+  { k: "Gap & overlap-free output", v: "✅ by construction", p: "❌", i: "⚠️", m: "✅" },
+  { k: "Exact lines & circles", v: "✅", p: "lines only", i: "❌", m: "❌" },
+  { k: "Open source", v: "✅", p: "✅", i: "❌", m: "❌" },
+  { k: "Headless CLI + benchmark", v: "✅", p: "CLI only", i: "❌", m: "❌" },
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+
+    <link rel="icon" href={`${base}/favicon.ico`} sizes="any" />
+    <link rel="apple-touch-icon" href={`${base}/assets/vecto_logo.png`} />
+    <meta name="theme-color" content="#0a0a0a" />
+
+    <meta name="description" content={description} />
+    <meta
+      name="keywords"
+      content="image to vector converter, PNG to SVG, JPG to SVG, vectorize logo, image tracing software, auto trace, bitmap to vector graphics, free Vector Magic alternative, Illustrator Image Trace alternative, potrace alternative with color, SVG converter Windows, vectorize image free, raster to vector"
+    />
+    <meta name="author" content={author} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://danielmevit.github.io/vecto/" />
+    <meta
+      property="og:image"
+      content="https://danielmevit.github.io/vecto/assets/vecto_app_screenshot.png"
+    />
+    <meta property="og:site_name" content="Vecto" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "Vecto",
+      applicationCategory: "DesignApplication",
+      operatingSystem: "Windows 10, Windows 11 (64-bit); CLI also on Linux and macOS",
+      description:
+        "Free, open-source image-to-vector converter. Traces PNG and JPG images into clean, editable SVG with mathematically exact circles, true straight lines, and zero gaps between shapes. Runs locally.",
+      url: "https://danielmevit.github.io/vecto/",
+      downloadUrl: "https://github.com/danielmevit/vecto/releases",
+      screenshot: "https://danielmevit.github.io/vecto/assets/vecto_app_screenshot.png",
+      softwareVersion: version,
+      author: { "@type": "Person", name: author, url: "https://github.com/danielmevit" },
+      license: "https://opensource.org/license/mit",
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      keywords:
+        "image to vector, PNG to SVG, JPG to SVG, vectorize logo, image tracing, auto trace, bitmap to vector, Vector Magic alternative, Image Trace alternative, SVG converter",
+    })} />
+
+    <style is:global>
+      :root {
+        /* Vecto's own design language: near-black surfaces, hairline borders,
+           the app's #0C8CE9 blue — so the screenshot feels native on the page. */
+        --bg: #0a0a0a;
+        --bg-soft: #101010;
+        --card: #151515;
+        --card-hover: #1a1a1a;
+        --text: #c9c9c9;
+        --heading: #ffffff;
+        --muted: #8c8c8c;
+        --faint: #6e6e6e;
+        --border: #232323;
+        --border-hi: #2e2e2e;
+        --accent: #0c8ce9;
+        --accent-hi: #3fa4ee;
+        --radius: 14px;
+        --wrap: 1080px;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.65;
+        margin: 0;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      img { max-width: 100%; height: auto; display: block; }
+      a { color: var(--accent-hi); }
+
+      .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 1.5rem; }
+
+      h1, h2, h3 { color: var(--heading); line-height: 1.2; }
+
+      /* ---------- nav ---------- */
+      nav {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1.1rem 0; gap: 1rem;
+      }
+      .brand {
+        display: flex; align-items: center; gap: 0.6rem;
+        font-weight: 700; color: var(--heading); text-decoration: none; font-size: 1.15rem;
+      }
+      .brand img { width: 26px; height: 26px; border-radius: 6px; flex: none; }
+      nav .links { display: flex; align-items: center; gap: 1.3rem; }
+      nav .links a {
+        color: var(--muted); text-decoration: none; font-weight: 500; font-size: 0.95rem;
+      }
+      nav .links a:hover { color: var(--heading); }
+
+      .btn {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        background: var(--accent); color: #fff !important;
+        padding: 0.7rem 1.25rem; border-radius: 999px;
+        font-weight: 600; text-decoration: none; border: 1px solid transparent;
+        transition: background .12s ease, transform .12s ease;
+      }
+      .btn:hover { background: var(--accent-hi); transform: translateY(-1px); }
+      .btn.ghost { background: transparent; color: var(--text) !important; border-color: var(--border-hi); }
+      .btn.ghost:hover { border-color: var(--muted); background: transparent; }
+      .btn.big { padding: 0.9rem 1.6rem; font-size: 1.02rem; }
+
+      /* ---------- hero ---------- */
+      .hero { padding: 3.5rem 0 1rem; text-align: center; }
+      .hero h1 { font-size: clamp(2.1rem, 5vw, 3.3rem); margin: 0 0 1rem; letter-spacing: -0.02em; }
+      .hero h1 .hl { color: var(--accent-hi); }
+      .hero p.lead {
+        font-size: clamp(1.05rem, 2vw, 1.2rem); max-width: 660px; margin: 0 auto 1.6rem;
+        color: var(--text);
+      }
+      .cta { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
+      .under-cta { color: var(--muted); font-size: 0.85rem; margin-top: 0.9rem; }
+
+      .shot {
+        margin: 2.5rem auto 0; border: 1px solid var(--border-hi); border-radius: var(--radius);
+        overflow: hidden; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+      }
+      .shot-caption { color: var(--faint); font-size: 0.85rem; margin: 1rem 0 0; }
+
+      /* ---------- sections ---------- */
+      section { padding: 3.5rem 0; }
+      .section-head { text-align: center; margin-bottom: 2.2rem; }
+      .section-head h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 0 0 0.5rem; }
+      .section-head p { color: var(--muted); margin: 0; }
+      .band { background: var(--bg-soft); border-block: 1px solid var(--border); }
+
+      .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+      .card {
+        background: var(--card); border: 1px solid var(--border);
+        border-radius: var(--radius); padding: 1.4rem;
+        transition: background .15s ease, border-color .15s ease;
+      }
+      .card:hover { background: var(--card-hover); border-color: var(--border-hi); }
+      .card h3 { margin: 0 0 0.5rem; font-size: 1.05rem; }
+      .card p { margin: 0; font-size: 0.95rem; color: var(--text); }
+
+      /* ---------- steps ---------- */
+      .steps { counter-reset: step; display: grid; gap: 0.9rem; max-width: 720px; margin: 0 auto; }
+      .step {
+        display: flex; gap: 1rem; align-items: flex-start;
+        background: var(--card); border: 1px solid var(--border);
+        border-radius: var(--radius); padding: 1.1rem 1.3rem;
+      }
+      .step .n {
+        counter-increment: step; flex: none;
+        width: 28px; height: 28px; border-radius: 50%;
+        background: var(--accent); color: #fff; font-weight: 700; font-size: 0.9rem;
+        display: grid; place-items: center;
+      }
+      .step .n::before { content: counter(step); }
+      .step p { margin: 0.15rem 0 0; }
+      .step b { color: var(--heading); }
+      .step kbd {
+        background: var(--bg); border: 1px solid var(--border-hi); border-bottom-width: 2px;
+        border-radius: 6px; padding: 0.05rem 0.4rem; font-size: 0.9em; color: var(--heading);
+      }
+
+      /* ---------- terminal ---------- */
+      .term {
+        max-width: 720px; margin: 0 auto;
+        background: var(--bg); border: 1px solid var(--border-hi);
+        border-radius: var(--radius); padding: 1.3rem 1.5rem;
+        font-family: Consolas, "SF Mono", SFMono-Regular, Menlo, monospace;
+        font-size: 0.92rem; line-height: 2.1; overflow-x: auto;
+      }
+      .term .ln { white-space: nowrap; }
+      .term .p { color: var(--faint); user-select: none; }
+      .term .c { color: var(--heading); font-weight: 600; }
+      .term .a { color: var(--text); }
+      .term .cm { color: var(--faint); }
+      .term-note { text-align: center; color: var(--muted); font-size: 0.9rem; margin: 1.3rem 0 0; }
+
+      /* ---------- comparison ---------- */
+      .cmp-scroll {
+        overflow-x: auto; max-width: 860px; margin: 0 auto;
+        border: 1px solid var(--border); border-radius: var(--radius); background: var(--card);
+      }
+      table.cmp { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.94rem; }
+      .cmp th, .cmp td { padding: 0.7rem 1rem; text-align: center; border-top: 1px solid var(--border); }
+      .cmp thead th { border-top: none; color: var(--heading); font-weight: 600; }
+      .cmp td:first-child, .cmp th:first-child { text-align: left; color: var(--muted); }
+      .cmp .vecto { color: var(--heading); font-weight: 600; background: rgba(12, 140, 233, 0.08); }
+      .cmp thead th.vecto { color: var(--accent-hi); background: rgba(12, 140, 233, 0.14); }
+
+      /* ---------- downloads ---------- */
+      .dl-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+      .dl {
+        background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 1.3rem; text-align: center;
+      }
+      .dl h3 { margin: 0 0 0.2rem; font-size: 1rem; }
+      .dl .os { color: var(--muted); font-size: 0.85rem; margin: 0 0 0.9rem; }
+      .dl .sub-dl { color: var(--muted); font-size: 0.85rem; margin: 0.8rem 0 0; }
+      .note {
+        margin-top: 1.4rem; padding: 0.9rem 1.1rem; border-radius: 10px;
+        background: var(--bg-soft); border: 1px solid var(--border);
+        color: var(--muted); font-size: 0.88rem;
+      }
+      .note b { color: var(--text); }
+
+      /* ---------- faq ---------- */
+      .faq { max-width: 760px; margin: 0 auto; }
+      details {
+        border-bottom: 1px solid var(--border); padding: 1rem 0;
+      }
+      details summary {
+        cursor: pointer; font-weight: 600; color: var(--heading); list-style: none;
+        display: flex; justify-content: space-between; gap: 1rem; align-items: center;
+      }
+      details summary::-webkit-details-marker { display: none; }
+      details summary::after { content: "+"; color: var(--accent-hi); font-weight: 700; }
+      details[open] summary::after { content: "–"; }
+      details p { margin: 0.7rem 0 0; color: var(--text); }
+
+      /* ---------- footer ---------- */
+      footer {
+        border-top: 1px solid var(--border); padding: 2.2rem 0 3rem;
+        color: var(--muted); font-size: 0.88rem;
+      }
+      footer .row { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+      footer a { color: var(--muted); }
+      footer a:hover { color: var(--heading); }
+
+      @media (max-width: 640px) {
+        nav .links a:not(.btn) { display: none; }
+        .hero { padding-top: 2rem; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .btn { transition: none; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <nav>
+        <a class="brand" href={`${base}/`}>
+          <img src={`${base}/assets/vecto_logo.png`} alt="" width="26" height="26" /> Vecto
+        </a>
+        <div class="links">
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="#compare">Compare</a>
+          <a href={`${base}/changelog/`}>Changelog</a>
+          <a href={repo}>GitHub</a>
+          <a class="btn" href="#download">Download</a>
+        </div>
+      </nav>
+    </div>
+
+    <header class="wrap hero">
+      <h1>Turn any image into <span class="hl">clean vectors</span></h1>
+      <p class="lead">
+        Vecto traces PNG and JPG images — logos, icons, illustrations, scans —
+        into editable SVG with exact circles, true straight lines, and zero gaps
+        between shapes. Free, open source, and it runs on your machine.
+      </p>
+      <div class="cta">
+        <a class="btn big" id="dl-hero" href={latest}>Download for Windows</a>
+        <a class="btn big ghost" href="#download">All downloads</a>
+      </div>
+      <p class="under-cta">
+        One file, no install — v{version} · MIT · CLI for Linux &amp; macOS · nothing uploaded, no account
+      </p>
+
+      <div class="shot">
+        <img
+          src={`${base}/assets/vecto_app_screenshot.png`}
+          width="1600" height="975"
+          alt="Vecto app — a bitmap image on the left, its traced vector version on the right, with palette and tracing settings in a dark interface"
+        />
+      </div>
+      <p class="shot-caption">
+        The original and the vector, side by side — synced zoom, live re-trace on every setting change.
+      </p>
+    </header>
+
+    <!-- section + .wrap stay on separate elements so the band backgrounds run full-width. -->
+    <section id="features">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Output that looks designed, not traced</h2>
+          <p>Most free converters leave hairline gaps, wobbly curves and lumpy circles. Vecto's engine was built around not doing that.</p>
+        </div>
+        <div class="grid">
+          {features.map((f) => (
+            <div class="card">
+              <h3>{f.title}</h3>
+              <p>{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="band">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Three steps. That's the whole app.</h2>
+          <p>No tracing dialogs with thirty sliders.</p>
+        </div>
+        <div class="steps">
+          <div class="step"><span class="n"></span><p><b>Drop in any image.</b> Open, drag &amp; drop, or paste with <kbd>Ctrl</kbd>+<kbd>V</kbd> — PNG, JPG, BMP or GIF. Transparency is preserved.</p></div>
+          <div class="step"><span class="n"></span><p><b>Watch it trace, live.</b> The vector appears next to the original with synced zoom. Adjust colors, style or detail and it re-traces instantly.</p></div>
+          <div class="step"><span class="n"></span><p><b>Take your SVG.</b> Export a file or copy to the clipboard, then paste into Figma, Illustrator, Inkscape or your cutting software.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cli">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Scriptable from the terminal</h2>
+          <p>The same engine ships as the <b>vecto</b> command-line tool — batch jobs, build pipelines, Linux and macOS.</p>
+        </div>
+        <div class="term" role="img" aria-label="Terminal examples of the vecto command-line tool">
+          <div class="ln"><span class="p">$ </span><span class="c">vecto trace</span><span class="a"> logo.png -o logo.svg --stats</span></div>
+          <div class="ln"><span class="p">$ </span><span class="c">vecto trace</span><span class="a"> photo.jpg --style photo --colors 24</span></div>
+          <div class="ln"><span class="p">$ </span><span class="c">vecto trace</span><span class="a"> icon.png --check</span><span class="cm">   # verify the no-gaps guarantee</span></div>
+          <div class="ln"><span class="p">$ </span><span class="c">vecto bench</span><span class="a"> original.svg</span><span class="cm">      # measure quality vs ground truth</span></div>
+        </div>
+        <p class="term-note">Deterministic by design — the same input always produces the byte-identical SVG.</p>
+      </div>
+    </section>
+
+    <section id="compare" class="band">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>How it stacks up</h2>
+          <p>An honest comparison with the tools people actually use for vectorization.</p>
+        </div>
+        <div class="cmp-scroll">
+          <table class="cmp">
+            <thead>
+              <tr>
+                <th></th>
+                <th class="vecto">Vecto</th>
+                <th>potrace / Inkscape</th>
+                <th>Illustrator Image&nbsp;Trace</th>
+                <th>Vector Magic</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cmp.map((r) => (
+                <tr>
+                  <td>{r.k}</td>
+                  <td class="vecto">{r.v}</td>
+                  <td>{r.p}</td>
+                  <td>{r.i}</td>
+                  <td>{r.m}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="download">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Download Vecto {version}</h2>
+          <p>Free under the MIT open-source license. No account, no strings.</p>
+        </div>
+        <div class="dl-grid">
+          <div class="dl">
+            <h3>Windows</h3>
+            <p class="os">10 / 11 · 64-bit · desktop app</p>
+            <a class="btn" id="dl-win-exe" href={latest}>Get the app (.exe)</a>
+            <p class="sub-dl">One self-contained file — no install.<br /><a id="dl-win-zip" href={latest}>App + CLI portable ZIP</a> also available</p>
+          </div>
+          <div class="dl">
+            <h3>Linux</h3>
+            <p class="os">x64 · command-line tracer</p>
+            <a class="btn" id="dl-linux" href={latest}>Get the CLI</a>
+            <p class="sub-dl">Single binary — <code>chmod +x</code> and run</p>
+          </div>
+          <div class="dl">
+            <h3>macOS</h3>
+            <p class="os">Apple Silicon &amp; Intel · command-line tracer</p>
+            <a class="btn" id="dl-mac-arm" href={latest}>Get the CLI</a>
+            <p class="sub-dl">Apple Silicon build — <a id="dl-mac-x64" href={latest}>Intel build</a> on the releases page</p>
+          </div>
+        </div>
+        <p class="note">
+          New unsigned apps make Windows SmartScreen cautious on first run — choose
+          <b>More info → Run anyway</b>. SHA-256 checksums for every file are in the
+          release notes, and you can always <a href={repo}>read the source</a> or build it yourself.
+        </p>
+      </div>
+    </section>
+
+    <section id="faq" class="band">
+      <div class="wrap">
+        <div class="section-head"><h2>Fair questions</h2></div>
+        <div class="faq">
+          {faqs.map((f) => (
+            <details>
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">
+        <div class="row">
+          <div>
+            © {year} <a href="https://github.com/danielmevit">Daniel Mevit</a> · Made by
+            <a href="https://damt.xyz">damt.xyz</a>
+          </div>
+          <div>
+            <a href={repo}>GitHub</a> ·
+            <a href={releases}>Releases</a> ·
+            <a href={`${base}/changelog/`}>Changelog</a> ·
+            <a href={`${repo}/blob/main/LICENSE`}>MIT License</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Progressive enhancement: point download buttons at the newest release's
+         actual files. Static fallbacks (the releases page) work without JS. -->
+    <script is:inline>
+      (function () {
+        var pick = {
+          "dl-hero": function (n) { return /^Vecto-[\d.]+\.exe$/.test(n); },
+          "dl-win-exe": function (n) { return /^Vecto-[\d.]+\.exe$/.test(n); },
+          "dl-win-zip": function (n) { return /win-x64\.zip$/i.test(n); },
+          "dl-linux": function (n) { return /linux-x64$/.test(n); },
+          "dl-mac-arm": function (n) { return /osx-arm64$/.test(n); },
+          "dl-mac-x64": function (n) { return /osx-x64$/.test(n); }
+        };
+        fetch("https://api.github.com/repos/danielmevit/vecto/releases/latest")
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (rel) {
+            if (!rel || !rel.assets) return;
+            Object.keys(pick).forEach(function (id) {
+              var el = document.getElementById(id);
+              if (!el) return;
+              var asset = rel.assets.find(function (a) { return pick[id](a.name); });
+              if (asset) el.href = asset.browser_download_url;
+            });
+          })
+          .catch(function () { /* fallbacks already point at the releases page */ });
+      })();
+    </script>
+  </body>
+</html>

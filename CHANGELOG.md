@@ -1,5 +1,15 @@
 # Changelog — Vecto
 
+## Unreleased
+
+### Product website (site/)
+- Astro landing page + changelog at https://danielmevit.github.io/vecto/ — mirrors the
+  Eqho/Laydown site playbook (data-driven sections, version read from
+  Directory.Build.props at build time, robots/sitemap/llms.txt, SoftwareApplication
+  JSON-LD) in Vecto's own design language (near-black, hairline borders, #0C8CE9).
+- Download buttons resolve the latest GitHub Release assets via JS, with the releases
+  page as no-JS fallback. Deploys via GitHub Actions (withastro/action) on push to main.
+
 ## v0.4.1 — 2026-07-08
 
 ### Dark UI theme (Toolcraft-inspired, original XAML)

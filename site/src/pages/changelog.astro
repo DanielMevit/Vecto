@@ -1,0 +1,134 @@
+---
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const title = "Changelog | Vecto";
+const description =
+  "Version history for Vecto — the free, open-source image-to-vector (PNG to SVG) converter. Every release, what changed, and when.";
+
+// Newest first. Add new releases at the top.
+const releases = [
+  {
+    v: "0.4.1",
+    d: "2026-07-08",
+    notes: `First public release. The dark UI theme lands — near-black surfaces, hairline borders, the blue accent, Inter typography and a dark title bar — plus the app icon, the MIT license, and downloads on GitHub Releases: the Windows app as a single self-contained file, and the vecto command-line tool for Windows, Linux and macOS.`,
+  },
+  {
+    v: "0.4.0",
+    d: "2026-07-08",
+    notes: `Perfect circles — detected corners are re-checked against the refined sub-pixel geometry, so false corners get demoted and rings, dots and rounded caps come out as mathematically exact circles. Straight-run extraction and collinear merging heal edges that processing seams used to split. Also measured: doubling input resolution halves the tracing error — feed big images.`,
+  },
+  {
+    v: "0.3.0",
+    d: "2026-07-08",
+    notes: `Geometric primitives in the curve fitter — straight edges now come out as single straight lines and circular shapes as exact arcs (icons stop wobbling), with 11–18% fewer nodes at the same fidelity. On Vector Magic's own sample logo, Vecto now matches it at 116 nodes vs 118.`,
+  },
+  {
+    v: "0.2.0",
+    d: "2026-07-08",
+    notes: `Sub-pixel edge refinement — boundaries slide to where the anti-aliasing says the real edge is, cutting color error by 40–46% on the ground-truth benchmark. New CLI commands: vecto render (SVG to PNG) and vecto bench, a round-trip quality benchmark against reference vectors.`,
+  },
+  {
+    v: "0.1.0",
+    d: "2026-07-08",
+    notes: `The engine, the CLI and the app, all at once. The planar boundary-graph engine (no gaps, no overlaps, by construction), Oklab color-palette inference, corner detection and least-squares Bezier fitting; the vecto CLI with a planarity self-check; the Windows app with side-by-side compare, synced zoom, live re-trace and SVG export; and a suite of geometric-invariant tests.`,
+  },
+];
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href={`${base}/favicon.ico`} sizes="any" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://danielmevit.github.io/vecto/changelog/" />
+    <style>
+      :root {
+        --bg: #0a0a0a;
+        --card: #151515;
+        --text: #c9c9c9;
+        --heading: #ffffff;
+        --muted: #8c8c8c;
+        --border: #232323;
+        --accent-hi: #3fa4ee;
+      }
+      * { box-sizing: border-box; }
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.65;
+        margin: 0;
+        -webkit-font-smoothing: antialiased;
+      }
+      main { max-width: 820px; margin: 4rem auto; padding: 0 1.5rem; }
+      a { color: var(--accent-hi); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 3rem; }
+      .brand {
+        display: flex; align-items: center; gap: 0.6rem;
+        font-weight: 700; color: var(--heading); font-size: 1.15rem;
+      }
+      .brand img { width: 28px; height: 28px; border-radius: 6px; display: block; }
+      .brand:hover { text-decoration: none; }
+      h1 { color: var(--heading); font-size: 2.5rem; font-weight: 700; letter-spacing: -0.02em; margin: 2rem 0 0.25rem; }
+      .lede { color: var(--muted); margin: 0 0 3rem; }
+      .release { padding: 1.75rem 0; border-top: 1px solid var(--border); display: grid; grid-template-columns: 130px 1fr; gap: 1.5rem; }
+      .release:first-of-type { border-top: none; }
+      .rel-head { display: flex; flex-direction: column; gap: 0.15rem; }
+      .rel-v { color: var(--accent-hi); font-weight: 600; font-size: 1.15rem; }
+      .rel-d { color: var(--muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+      .rel-notes { margin: 0; }
+      footer { text-align: center; margin-top: 5rem; padding: 3rem 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }
+      @media (max-width: 620px) {
+        .release { grid-template-columns: 1fr; gap: 0.4rem; }
+        h1 { font-size: 2rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="top">
+        <a class="brand" href={`${base}/`} aria-label="Vecto home">
+          <img src={`${base}/assets/vecto_logo.png`} alt="" width="28" height="28" /> Vecto
+        </a>
+        <a href={`${base}/`}>&larr; Back to home</a>
+      </div>
+
+      <h1>Changelog</h1>
+      <p class="lede">
+        Every Vecto release, what changed, and when. Newest first. Full technical detail lives in
+        <a href="https://github.com/danielmevit/vecto/blob/main/CHANGELOG.md">CHANGELOG.md</a>.
+      </p>
+
+      {releases.map((r) => (
+        <article class="release">
+          <div class="rel-head">
+            <span class="rel-v">{r.v}</span>
+            <time class="rel-d" datetime={r.d}>{r.d}</time>
+          </div>
+          <p class="rel-notes">{r.notes}</p>
+        </article>
+      ))}
+    </main>
+
+    <footer>
+      <p>
+        <a href={`${base}/`}>Home</a> ·
+        <a href="https://github.com/danielmevit/vecto/releases">Releases</a> ·
+        <a href="https://github.com/danielmevit/vecto">GitHub</a>
+      </p>
+    </footer>
+  </body>
+</html>

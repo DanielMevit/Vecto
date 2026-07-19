@@ -5,3 +5,9 @@ _bench/
 *.user
 .vs/
 publish/
+
+# Astro product site (site/) build artifacts — deps + generated files
+site/node_modules/
+site/.astro/
+site/dist/
+site/src/env.d.ts
