@@ -18,8 +18,13 @@
 - ~~Batch mode in CLI (`vecto trace *.png --out-dir`)~~ **done 2026-07-19**
 
 ## Distribution
-- Microsoft Store first publish — MSIX packaging; Laydown repo has AppxManifest.xml +
-  certs + packaging scripts to crib from
+- Microsoft Store first publish — ~~MSIX packaging~~ **built 2026-07-19**
+  (`packaging/windows/build.ps1`: exe/ZIP/sideload-MSIX/Store-MSIX; `docs/store/` has
+  the full Partner Center copy). Remaining: register the developer account (~$19,
+  individual), reserve "Vecto", paste the 3 Product-identity values → `-Store` build →
+  upload (SUBMISSION.md walks every field)
+- ~~Portable Windows build~~ **done 2026-07-19** (`portable.txt` beside the exe keeps
+  settings there; ZIP ships it)
 - winget manifest (`winget install vecto`); demo GIF for README/site
 - Code signing (SmartScreen) — costs money, decide separately
 

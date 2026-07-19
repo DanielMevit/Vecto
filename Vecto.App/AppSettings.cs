@@ -14,8 +14,12 @@ public sealed class AppSettings
     public double WindowHeight { get; set; } = 780;
     public bool WindowMaximized { get; set; }
 
-    static string FilePath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Vecto", "settings.json");
+    /// <summary>A `portable.txt` beside the exe flips settings to live there too (the
+    /// portable ZIP ships it); otherwise %APPDATA%\Vecto as usual.</summary>
+    static string FilePath =>
+        File.Exists(Path.Combine(AppContext.BaseDirectory, "portable.txt"))
+            ? Path.Combine(AppContext.BaseDirectory, "settings.json")
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Vecto", "settings.json");
 
     public static AppSettings Load()
     {

@@ -16,6 +16,21 @@
 - Found + documented in ROADMAP: chamfered-AA corners (ambiguous ~50% border pixels)
   escape k=3 corner detection entirely — a separate detection-side lever.
 
+### Windows packaging: MSIX + portable (packaging/windows/build.ps1)
+- One script builds every Windows artifact, version read from Directory.Build.props:
+  compressed single-file exe, portable ZIP (app + `vecto` CLI + `portable.txt`),
+  self-signed sideload MSIX with its public `.cer`, and — with `-Store` — the
+  unsigned Partner Center upload stamped with the `VECTO_STORE_*` identity values.
+- `AppxManifest.xml`: `runFullTrust` as the only capability, Open-with file
+  association for png/jpg/jpeg/bmp/gif, Store tiles generated from the master logo
+  (`scripts/make-msix-assets.ps1`). `certs/` is gitignored (the PFX is a secret).
+- **Portable mode**: a `portable.txt` beside `Vecto.exe` moves `settings.json` next
+  to the exe; the portable ZIP ships the marker plus a README explaining it.
+- `docs/store/SUBMISSION.md` + `LISTING.md`: field-by-field Partner Center copy
+  (properties, requirements with measured numbers, runFullTrust justification,
+  listing text and keywords). The site gains `/privacy/` — certification requires
+  a policy URL for full-trust apps.
+
 ### Quick wins (app + CLI)
 - **App: PNG export** — Export PNG… renders the traced vector through the Core
   Rasterizer (1×, supersampled) and saves via the WPF PNG encoder.
