@@ -77,7 +77,10 @@ $portableDir = "$outDir\Vecto-$version-win-x64"
 if (Test-Path $portableDir) { Remove-Item $portableDir -Recurse -Force }
 New-Item -ItemType Directory -Path $portableDir | Out-Null
 Copy-Item "$outDir\app-single\Vecto.exe" $portableDir
-Copy-Item "$outDir\cli-single\vecto.exe" $portableDir
+# Windows filenames are case-insensitive: the CLI's vecto.exe beside the app's
+# Vecto.exe silently overwrites the app, so the CLI ships in cli\.
+New-Item -ItemType Directory -Path "$portableDir\cli" | Out-Null
+Copy-Item "$outDir\cli-single\vecto.exe" "$portableDir\cli\"
 Copy-Item "$root\LICENSE" $portableDir
 Copy-Item "$root\README.md" $portableDir
 # the marker file: Vecto.App stores settings.json beside the exe when it exists
@@ -85,9 +88,9 @@ Set-Content "$portableDir\portable.txt" "This file keeps Vecto portable: setting
 @"
 Vecto $version -- portable (x64)
 
-Vecto.exe is the app; vecto.exe is the command-line tracer (add this folder
-to PATH to call it from any terminal). Nothing is installed; settings live in
-settings.json in this folder because portable.txt is present -- delete
+Vecto.exe is the app; cli\vecto.exe is the command-line tracer (add the cli
+folder to PATH to call it from any terminal). Nothing is installed; settings
+live in settings.json in this folder because portable.txt is present -- delete
 portable.txt if you prefer them in %APPDATA%\Vecto.
 
 Windows may warn that the publisher is unknown: the binaries are unsigned.
