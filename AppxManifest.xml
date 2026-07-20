@@ -13,7 +13,7 @@
     ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>Vecto</DisplayName>
+    <DisplayName>Vecto - Image to Vector</DisplayName>
     <PublisherDisplayName>Vecto Team</PublisherDisplayName>
     <Logo>assets\msix\StoreLogo.png</Logo>
     <Description>Trace PNG and JPG images into clean, editable SVG — exact circles, true straight lines, zero gaps between shapes. Free, offline, open source.</Description>

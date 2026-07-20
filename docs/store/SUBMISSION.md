@@ -17,16 +17,28 @@ point.
 | Where | https://partner.microsoft.com/dashboard → register |
 | Account type | **Individual** (company adds verification steps you don't need) |
 | Fee | one-time **~19 USD** (no yearly renewal) |
-| Then | Apps and games → New product → reserve the name **Vecto** |
+| Then | Apps and games → New product → reserve the name **Vecto - Image to Vector** |
 
-If plain "Vecto" is taken at reservation time, fall back to **"Vecto — PNG to SVG"**
-(the display name in the app itself stays Vecto either way).
+Plain "Vecto" is unavailable (checked 2026-07-20) — usually that means another developer
+reserved it without shipping; such reservations lapse after three months, so it is worth
+re-checking later. The descriptor is **"Image to Vector"** rather than "Image to SVG"
+because it stays accurate if EPS/PDF/DXF export is added later, and renaming a live
+listing costs a fresh reservation plus a new submission.
+
+Reserve **Vecto - Image to SVG** as a second name too if it is free: Partner Center allows
+several names per product and you pick one at publish time, so holding both costs nothing
+and keeps the more search-friendly wording available.
+
+Only `<Properties><DisplayName>` has to match the reservation. The Start-menu tile
+(`uap:VisualElements DisplayName`) stays the short **Vecto** — verify with the Windows App
+Certification Kit before submitting, as Microsoft does not document whether the two are
+allowed to differ; if it objects, set both to the reserved name.
 
 ## 1. Product reservation
 | Field | Value |
 |-------|-------|
 | Product type | **MSIX or PWA app** (so the Store signs it — not "EXE or MSI app") |
-| Name | **Vecto** |
+| Name | **Vecto - Image to Vector** |
 
 ## 2. Properties page
 | Field | Value |

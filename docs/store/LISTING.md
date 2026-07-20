@@ -3,7 +3,7 @@
 Field-by-field copy for Partner Center. Tone matches the site: commercial, not arrogant.
 
 ## Product name
-Vecto
+Vecto - Image to Vector
 
 ## Description* (required — this is the field with the red error)
 Vecto turns pictures into vector graphics — drop in a PNG or JPG logo, icon,
@@ -49,7 +49,7 @@ Leave blank — Partner Center's own hint says to skip it on a first submission.
 png to svg
 svg converter
 vectorize
-image to vector
+image to svg
 image tracing
 auto trace
 bitmap to vector
