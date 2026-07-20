@@ -161,11 +161,44 @@ rule).
 
 ---
 
-## What I still need from you
-Three values from **Partner Center → your product → Product management → Product identity**
-(they exist as soon as the name is reserved):
-1. `VECTO_STORE_IDENTITY_NAME` — e.g. `12345DanielMevit.Vecto`
-2. `VECTO_STORE_PUBLISHER` — e.g. `CN=A1B2C3D4-1234-...`
-3. `VECTO_STORE_PUBLISHER_DISPLAY` — your publisher display name
+## Product identity (from Partner Center, reserved 2026-07-20)
+These are public — they are embedded in every published package — so they live here rather
+than being re-fetched each time. `build.ps1 -Store` reads them from the environment:
 
-Paste those three and I build the Store `.msix` you upload on the Packages tab.
+| Env var | Value |
+|---------|-------|
+| `VECTO_STORE_IDENTITY_NAME` | `Mevit.Vecto-ImagetoVector` |
+| `VECTO_STORE_PUBLISHER` | `CN=FC84DC20-8F99-4304-B4A8-3C0DA3D25EF4` |
+| `VECTO_STORE_PUBLISHER_DISPLAY` | `Mevit` |
+
+Reserved name: **Vecto - Image to Vector** (the identity is that string with spaces
+stripped, which is how you can check the two still agree — `Properties/DisplayName` in the
+manifest must match the reserved name exactly).
+
+Store listing, once published: `https://apps.microsoft.com/detail/9PM61P4NC8J2`
+· Store ID `9PM61P4NC8J2` · deep link `ms-windows-store://pdp/?productid=9PM61P4NC8J2`.
+Do not put that URL in the README or on the site until the app is actually live — it 404s
+until then.
+
+Partner Center also issues an **MSA app Id**. Vecto does not use Microsoft Account sign-in,
+push notifications or the Store Services SDK, so it has no use here; ignore it.
+
+## Building the upload
+From Windows PowerShell at the repo root:
+
+```powershell
+$env:VECTO_STORE_IDENTITY_NAME    = "Mevit.Vecto-ImagetoVector"
+$env:VECTO_STORE_PUBLISHER        = "CN=FC84DC20-8F99-4304-B4A8-3C0DA3D25EF4"
+$env:VECTO_STORE_PUBLISHER_DISPLAY = "Mevit"
+powershell -ExecutionPolicy Bypass -File packaging\windows\build.ps1 -Store
+```
+
+Produces `publish\Vecto-<version>-store.msix` — **unsigned by design**; the Store signs it.
+Upload that on the Packages tab. Optional pre-flight, from an **elevated** PowerShell
+(the kit refuses to run unelevated):
+
+```powershell
+& "C:\Program Files (x86)\Windows Kits\10\App Certification Kit\appcert.exe" test `
+    -appxpackagepath publish\Vecto-<version>-windows-x64.msix `
+    -reportoutputpath publish\wack-report.xml
+```
