@@ -45,14 +45,21 @@ computer; free and open source.
 ## What's new in this version
 Leave blank — Partner Center's own hint says to skip it on a first submission.
 
-## Keywords (up to 7 — press Enter after each)
+## Keywords (up to 7, max 40 chars each, 21 words total — press Enter after each)
 png to svg
+jpg to svg
 svg converter
 vectorize
 image to svg
 image tracing
-auto trace
 bitmap to vector
+
+<!-- 7/7 slots, 17/21 words. The title already carries "Image to Vector", so these
+     cover what it does not: the file formats and the category verbs. "jpg to svg"
+     replaced "auto trace" — JPG is a supported input and a far more common query.
+     Do NOT add competitor names ("Vector Magic alternative"): Store policy bans
+     third-party product names in listings. They are fine on the website, not here. -->
+
 
 ## Copyright and trademark info (optional)
 © 2026 Daniel Mevit
