@@ -183,6 +183,17 @@ const cmp = [
       h1, h2, h3 { color: var(--heading); line-height: 1.2; }
 
       /* ---------- nav ---------- */
+      /* Full-width bar that sticks to the top. The script at the end of <body>
+         reveals it near the top and on any upward scroll, and hides it while
+         scrolling down. position:sticky keeps its space in flow, so the hero
+         does not jump on load and no spacer is needed. */
+      .topbar {
+        position: sticky; top: 0; z-index: 50;
+        background: var(--bg);
+        transition: transform 0.28s ease;
+      }
+      .topbar.is-hidden { transform: translateY(-100%); }
+      .topbar.is-pinned { border-bottom: 1px solid var(--border); }
       nav {
         display: flex; align-items: center; justify-content: space-between;
         padding: 1.1rem 0; gap: 1rem;
@@ -338,25 +349,28 @@ const cmp = [
       @media (prefers-reduced-motion: reduce) {
         html { scroll-behavior: auto; }
         .btn { transition: none; }
+        .topbar { transition: none; }
       }
     </style>
   </head>
 
   <body>
-    <div class="wrap">
-      <nav>
-        <a class="brand" href={`${base}/`}>
-          <img src={`${base}/assets/vecto_logo.png`} alt="" width="26" height="26" /> Vecto
-        </a>
-        <div class="links">
-          <a href="#features">Features</a>
-          <a href="#how">How it works</a>
-          <a href="#compare">Compare</a>
-          <a href={`${base}/changelog/`}>Changelog</a>
-          <a href={repo}>GitHub</a>
-          <a class="btn" href="#download">Download</a>
-        </div>
-      </nav>
+    <div class="topbar" id="topbar">
+      <div class="wrap">
+        <nav>
+          <a class="brand" href={`${base}/`}>
+            <img src={`${base}/assets/vecto_logo.png`} alt="" width="26" height="26" /> Vecto
+          </a>
+          <div class="links">
+            <a href="#features">Features</a>
+            <a href="#how">How it works</a>
+            <a href="#compare">Compare</a>
+            <a href={`${base}/changelog/`}>Changelog</a>
+            <a href={repo}>GitHub</a>
+            <a class="btn" href="#download">Download</a>
+          </div>
+        </nav>
+      </div>
     </div>
 
     <header class="wrap hero">
@@ -557,6 +571,30 @@ const cmp = [
             });
           })
           .catch(function () { /* fallbacks already point at the releases page */ });
+      })();
+    </script>
+    <script is:inline>
+      (function () {
+        var bar = document.getElementById("topbar");
+        if (!bar) return;
+        var last = window.pageYOffset || 0;
+        var ticking = false;
+        function update() {
+          var y = window.pageYOffset || 0;
+          bar.classList.toggle("is-pinned", y > 4);
+          // near the top, or moving up -> show; moving down past the bar -> hide.
+          // the 2px deadband stops trackpad jitter from flickering the bar.
+          if (y <= bar.offsetHeight || y < last - 2) {
+            bar.classList.remove("is-hidden");
+          } else if (y > last + 2) {
+            bar.classList.add("is-hidden");
+          }
+          last = y;
+          ticking = false;
+        }
+        window.addEventListener("scroll", function () {
+          if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+        }, { passive: true });
       })();
     </script>
   </body>
