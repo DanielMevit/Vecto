@@ -50,8 +50,8 @@ allowed to differ; if it objects, set both to the reserved name.
 | Website | `https://danielmevit.github.io/vecto/` |
 | Support contact info | `https://github.com/danielmevit/vecto/issues` |
 
-**Product declarations** (checkboxes — all of these are **No / unchecked** for Vecto):
-- Uses the Microsoft commerce platform for purchases — no (it's free)
+**Product declarations** (checkboxes):
+- Uses the Microsoft commerce platform for purchases — **yes** ($7.99 paid app, Store checkout)
 - Depends on non-Microsoft drivers or NT services — no
 - Accesses, collects, or transmits personal information — **no** (there is no network code)
 - Is a screen reader / accessibility tool — no
@@ -68,7 +68,8 @@ controlled-substance/gambling references. Result: **rated for everyone (3+/E)** 
 ## 4. Pricing and availability
 | Field | Value |
 |-------|-------|
-| Base price | **Free** |
+| Base price | **$7.99 USD** (one-time; no subscription, no free trial) |
+| Market pricing | Set the base once; the Store auto-localizes to comparable local tiers. No per-market/PPP overrides — the free GitHub build covers anyone priced out. Review US/EU/UK/CA/AU in the conversion table before publishing. |
 | Markets | **All markets** |
 | Visibility | **Public** |
 | Discoverability | Available in Store, discoverable |

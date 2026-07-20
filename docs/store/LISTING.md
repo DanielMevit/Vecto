@@ -24,13 +24,14 @@ What you can do:
 • Export SVG or PNG, or copy to the clipboard
 • Batch-convert from the command line with the included vecto CLI
 
-Everything runs on your own computer. Nothing is uploaded, no account is
-needed, and it's free and open source.
+Everything runs on your own computer — nothing is uploaded, and no account is
+needed. Vecto is a one-time purchase, not a subscription, and it's open source;
+buying it on the Store directly supports development.
 
 ## Short description (optional, ~270 chars — shows near the top of the listing)
 Turn PNG and JPG images into clean, editable SVG vectors — true lines and
 exact circles, no gaps between shapes, live side-by-side preview. Runs on your
-computer; free and open source.
+computer. One-time purchase, no subscription; open source.
 
 ## Product features (optional — up to 20 short bullets, one per row)
 - PNG, JPG, BMP or GIF in — clean SVG out
@@ -84,7 +85,12 @@ Photo & video (or: Productivity; Photo & video fits a design tool better)
 No violence, no user content, no data collection → rates EVERYONE / 3+ everywhere.
 
 ## Pricing & availability
-Free · all markets · public.
+**$7.99 USD** base price · one-time purchase, no subscription, no free trial · public.
+Set the single base price and let the Store auto-localize it to comparable local price
+points across all markets (€7.99, £6.99, etc.) — no per-market/PPP overrides; sanity-check
+US / EU / UK / CA / AU in the conversion table before publishing. The free open-source
+build stays on GitHub for anyone who prefers it (that is also the affordability path for
+lower-income markets, so no regional discounting is needed).
 
 ## Notes for certification (the free-text box)
 Desktop image-to-vector tracer (win32 full trust). Fully offline by design — the
