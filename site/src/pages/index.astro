@@ -22,6 +22,14 @@ const releases = `${repo}/releases`;
 const latest = `${repo}/releases/latest`;
 const year = 2026;
 
+// Microsoft Store. The listing URL 410s until the app passes certification, so
+// storeLive stays false until it is published: the site keeps its free-download
+// layout in production, and flipping this one flag to true switches the hero and
+// download section to the Store-first layout (price shown, Store as the lead).
+const storeUrl = "https://apps.microsoft.com/detail/9PM61P4NC8J2";
+const storePrice = "$7.99";
+const storeLive = false;
+
 const features = [
   {
     title: "No gaps. No overlaps. Ever.",
@@ -312,6 +320,14 @@ const cmp = [
       .dl h3 { margin: 0 0 0.2rem; font-size: 1rem; }
       .dl .os { color: var(--muted); font-size: 0.85rem; margin: 0 0 0.9rem; }
       .dl .sub-dl { color: var(--muted); font-size: 0.85rem; margin: 0.8rem 0 0; }
+      /* the Store card: the recommended, paid path — accent-outlined and badged */
+      .dl-store { position: relative; border-color: var(--accent); background: var(--card-hover); }
+      .dl-badge {
+        position: absolute; top: -0.6rem; left: 50%; transform: translateX(-50%);
+        background: var(--accent); color: #fff; font-size: 0.7rem; font-weight: 700;
+        letter-spacing: 0.03em; text-transform: uppercase; white-space: nowrap;
+        padding: 0.15rem 0.6rem; border-radius: 999px;
+      }
       .note {
         margin-top: 1.4rem; padding: 0.9rem 1.1rem; border-radius: 10px;
         background: var(--bg-soft); border: 1px solid var(--border);
@@ -381,8 +397,17 @@ const cmp = [
         between shapes. Free, open source, and it runs on your machine.
       </p>
       <div class="cta">
-        <a class="btn big" id="dl-hero" href={latest}>Download for Windows</a>
-        <a class="btn big ghost" href="#download">All downloads</a>
+        {storeLive ? (
+          <>
+            <a class="btn big" href={storeUrl}>Get it on the Microsoft Store — {storePrice}</a>
+            <a class="btn big ghost" href="#download">Or download free</a>
+          </>
+        ) : (
+          <>
+            <a class="btn big" id="dl-hero" href={latest}>Download for Windows</a>
+            <a class="btn big ghost" href="#download">All downloads</a>
+          </>
+        )}
       </div>
       <p class="under-cta">
         One file, no install — v{version} · MIT · CLI for Linux &amp; macOS · nothing uploaded, no account
@@ -485,14 +510,25 @@ const cmp = [
       <div class="wrap">
         <div class="section-head">
           <h2>Download Vecto {version}</h2>
-          <p>Free under the MIT open-source license. No account, no strings.</p>
+          {storeLive
+            ? <p>One click and {storePrice} on the Microsoft Store, or the free open-source build direct.</p>
+            : <p>Free under the MIT open-source license. No account, no strings.</p>}
         </div>
         <div class="dl-grid">
+          {storeLive && (
+            <div class="dl dl-store">
+              <div class="dl-badge">Recommended</div>
+              <h3>Microsoft Store</h3>
+              <p class="os">Windows 10 / 11 · one-click install</p>
+              <a class="btn" href={storeUrl}>Get on the Store — {storePrice}</a>
+              <p class="sub-dl">Auto-updates, signed &amp; certified, and it directly supports development.</p>
+            </div>
+          )}
           <div class="dl">
-            <h3>Windows</h3>
+            <h3>{storeLive ? "Windows — direct" : "Windows"}</h3>
             <p class="os">10 / 11 · 64-bit · desktop app</p>
             <a class="btn" id="dl-win-exe" href={latest}>Get the app (.exe)</a>
-            <p class="sub-dl">One self-contained file — no install.<br /><a id="dl-win-zip" href={latest}>App + CLI portable ZIP</a> also available</p>
+            <p class="sub-dl">{storeLive ? "Free, unsigned — you update it yourself." : "One self-contained file — no install."}<br /><a id="dl-win-zip" href={latest}>App + CLI portable ZIP</a> also available</p>
           </div>
           <div class="dl">
             <h3>Linux</h3>
