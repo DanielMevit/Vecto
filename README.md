@@ -12,10 +12,15 @@
 </p>
 
 <p align="center">
+  <a href="https://apps.microsoft.com/detail/9PM61P4NC8J2"><img src="https://img.shields.io/badge/Microsoft%20Store-%247.99-0C8CE9" alt="Get it on the Microsoft Store — $7.99"/></a>
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"/>
   <img src="https://img.shields.io/badge/platform-Windows-0C8CE9" alt="Windows"/>
   <img src="https://img.shields.io/badge/.NET-8.0-512BD4" alt=".NET 8"/>
   <img src="https://img.shields.io/badge/dependencies-zero%20(engine)-success" alt="zero-dependency engine"/>
+</p>
+
+<p align="center">
+  <sub><a href="https://apps.microsoft.com/detail/9PM61P4NC8J2"><b>Get it on the Microsoft Store</b></a> for a one-click, auto-updating, signed install that supports development — or build the same open-source app free from the source below.</sub>
 </p>
 
 ![Vecto app — side-by-side comparison of a bitmap image and its traced vector version, dark UI](assets/screenshot.png)

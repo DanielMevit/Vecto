@@ -13,9 +13,9 @@ if (!match) throw new Error("Could not read <Version> from Directory.Build.props
 const version = match[1];
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-const title = "Vecto — Image to Vector. Free PNG and JPG to SVG converter.";
+const title = "Vecto — Image to Vector. PNG and JPG to SVG converter for Windows.";
 const description =
-  "Free, open-source image-to-vector converter. Trace PNG and JPG images — logos, icons, illustrations, scans — into clean, editable SVG with exact circles, true straight lines, and zero gaps between shapes. Runs on your machine, nothing uploaded.";
+  "Open-source image-to-vector converter for Windows. Trace PNG and JPG images — logos, icons, illustrations, scans — into clean, editable SVG with exact circles, true straight lines, and zero gaps between shapes. Runs on your machine, nothing uploaded.";
 const author = "Daniel Mevit";
 const repo = "https://github.com/danielmevit/vecto";
 const releases = `${repo}/releases`;
@@ -28,7 +28,7 @@ const year = 2026;
 // download section to the Store-first layout (price shown, Store as the lead).
 const storeUrl = "https://apps.microsoft.com/detail/9PM61P4NC8J2";
 const storePrice = "$7.99";
-const storeLive = false;
+const storeLive = true;
 
 const features = [
   {
@@ -52,15 +52,15 @@ const features = [
     body: "A logo traces in a blink; even a 4K photo takes seconds. Every setting change re-traces live in a side-by-side view, so you adjust by looking, not by trial-and-export.",
   },
   {
-    title: "Free, with no catch",
-    body: "MIT-licensed open source. No trial, no watermark, no “pro” tier holding the good output hostage. Anyone can read the code and verify every claim on this page.",
+    title: "Open source, no lock-in",
+    body: "MIT-licensed and fully open source — no trial clock, no watermark, no “pro” tier holding the good output hostage. Buy it on the Store to support development, or read and build the code yourself.",
   },
 ];
 
 const faqs = [
   {
-    q: "Is it really free? What's the catch?",
-    a: "No catch. Vecto is open source under the MIT license — no trial clock, no watermark, no premium tier. The full engine is in the free download, and the code is public on GitHub.",
+    q: "Is it free or paid?",
+    a: "Both, and there's no catch either way. The Microsoft Store version is $7.99 — one-click install, automatic updates, a signed app, and it directly supports development. Vecto is also open source under the MIT license, so you can download the same app free from GitHub or build it yourself. No trial clock, watermark or crippled tier anywhere — you're paying for convenience and to support the work, not for features.",
   },
   {
     q: "Is my artwork uploaded anywhere?",
@@ -85,7 +85,7 @@ const faqs = [
 ];
 
 const cmp = [
-  { k: "Price", v: "Free, MIT", p: "Free", i: "Subscription", m: "Paid" },
+  { k: "Price", v: "Free · $7.99", p: "Free", i: "Subscription", m: "Paid" },
   { k: "Full color", v: "✅", p: "⚠️ layer stacking", i: "✅", m: "✅" },
   { k: "Gap & overlap-free output", v: "✅ by construction", p: "❌", i: "⚠️", m: "✅" },
   { k: "Exact lines & circles", v: "✅", p: "lines only", i: "❌", m: "❌" },
@@ -137,7 +137,7 @@ const cmp = [
       applicationCategory: "DesignApplication",
       operatingSystem: "Windows 10, Windows 11 (64-bit); CLI also on Linux and macOS",
       description:
-        "Free, open-source image-to-vector converter. Traces PNG and JPG images into clean, editable SVG with mathematically exact circles, true straight lines, and zero gaps between shapes. Runs locally.",
+        "Open-source image-to-vector converter for Windows. Traces PNG and JPG images into clean, editable SVG with mathematically exact circles, true straight lines, and zero gaps between shapes. Runs locally.",
       url: "https://danielmevit.github.io/vecto/",
       downloadUrl: "https://github.com/danielmevit/vecto/releases",
       screenshot: "https://danielmevit.github.io/vecto/assets/vecto_app_screenshot.png",
@@ -394,7 +394,7 @@ const cmp = [
       <p class="lead">
         Vecto traces PNG and JPG images — logos, icons, illustrations, scans —
         into editable SVG with exact circles, true straight lines, and zero gaps
-        between shapes. Free, open source, and it runs on your machine.
+        between shapes. Open source, and it runs on your machine.
       </p>
       <div class="cta">
         {storeLive ? (
