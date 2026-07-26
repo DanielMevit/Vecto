@@ -5,12 +5,14 @@
 boundary is fitted once and shared by both adjacent regions, so the output has no gaps and
 no overlaps between shapes. C# / .NET 8 / WPF.
 
-**Current status:** v0.4.1 public on GitHub Releases (engine + CLI + app + dark theme);
-product site live at https://danielmevit.github.io/vecto/ (`site/`, deploys from `main`).
-**Current priority:** (1) sub-pixel junction/corner relaxation — top engine-quality lever,
-see ROADMAP; (2) Phase 4 UX: palette editor + tracing wizard; (3) distribution: first
-Microsoft Store publish (crib Laydown's AppxManifest/certs) + winget + demo GIF; plus
-tuning-backlog items as they bite.
+**Current status:** v0.4.2 **live on the Microsoft Store** ($7.99 one-time,
+https://apps.microsoft.com/detail/9PM61P4NC8J2) and free/open-source on GitHub Releases;
+product site is Store-first at https://danielmevit.github.io/vecto/ (`site/`, deploys from
+`main`). Full snapshot in `STATUS.md`.
+**Current priority:** (1) in-app "rate on the Store" review prompt — post-launch, highest
+leverage (see STATUS.md); (2) sub-pixel junction/corner relaxation — top engine-quality
+lever, see ROADMAP; (3) Phase 4 UX: palette editor + tracing wizard; plus tuning-backlog
+items as they bite.
 
 ## Solution layout (structure beyond this → CodeGraph)
 - `Vecto.Core` — the engine, zero dependencies. Pipeline lives in `Tracer.Trace`.
@@ -31,6 +33,7 @@ dotnet.exe test Vecto.Tests -c Release
 ```
 
 ## Where to read next
+- Where things stand right now (live status, store, next steps) → `STATUS.md`
 - How the pipeline works, stage by stage, with parameters → `ALGORITHM_INDEX.md`
 - Why it's built this way (planar graph, WPF, no VTracer, …) → `DECISIONS.md`
 - Environment traps (WSL, ImageSharp license, culture) → `GOTCHAS.md`

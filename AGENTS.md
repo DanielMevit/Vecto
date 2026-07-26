@@ -16,6 +16,7 @@
 | File | Owns |
 |------|------|
 | START_HERE.md | Orientation, current priority, how to run |
+| STATUS.md | Point-in-time snapshot: what's live, store, next steps, known issues |
 | ALGORITHM_INDEX.md | Pipeline stage → algorithm → parameters → code anchor |
 | DECISIONS.md | Durable "why" choices |
 | GOTCHAS.md | Build/run/env traps, licensing constraints |
